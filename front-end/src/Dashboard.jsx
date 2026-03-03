@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import InterventionModal from './InterventionModal.jsx'; // Ensure this file exists
+import InterventionModal from './InterventionModal';
+import Analytics from './Analytics';
 
 const Dashboard = ({ user, onLogout }) => {
-  // State for the Intervention Modal [cite: 21, 65]
   const [selectedPatient, setSelectedPatient] = useState(null);
 
-  // Mock data utilizing features like 'previous no-shows' and 'time since last visit' [cite: 31, 32, 33]
   const appointments = [
     { 
       id: "APT001", 
@@ -37,41 +36,40 @@ const Dashboard = ({ user, onLogout }) => {
     <div style={styles.dashboardContainer}>
       <header style={styles.header}>
         <div>
-          <h2 style={{ margin: 0 }}>AI-Powered Dashboard</h2>
+          <h2 style={{ margin: 0 }}>Patient Attendance Prediction System</h2>
           <span style={{ fontSize: '12px', color: '#7f8c8d' }}>
-            Logged in as: {user.role} [cite: 24, 60]
+            User: {user.email} | Role: {user.role}
           </span>
         </div>
         <button onClick={onLogout} style={styles.logoutBtn}>Logout</button>
       </header>
 
-      {/* Summary Cards for Analytics on no-show trends [cite: 11, 23] */}
       <div style={styles.statsRow}>
         <div style={{ ...styles.card, borderTop: '4px solid #27ae60' }}>
-          <p style={styles.statLabel}>Low Risk Appointments</p>
+          <p style={styles.statLabel}>Low Risk</p>
           <h3>24</h3>
         </div>
         <div style={{ ...styles.card, borderTop: '4px solid #f39c12' }}>
-          <p style={styles.statLabel}>Medium Risk Appointments</p>
+          <p style={styles.statLabel}>Medium Risk</p>
           <h3>12</h3>
         </div>
         <div style={{ ...styles.card, borderTop: '4px solid #e74c3c' }}>
-          <p style={styles.statLabel}>High Risk Appointments</p>
+          <p style={styles.statLabel}>High Risk</p>
           <h3>5</h3>
         </div>
       </div>
 
       <section style={styles.tableSection}>
-        <h3 style={{ marginBottom: '15px' }}>Upcoming Appointments [cite: 18, 61]</h3>
+        <h3 style={{ marginBottom: '15px' }}>Upcoming Schedule</h3>
         <table style={styles.table}>
           <thead>
             <tr style={styles.tableHeader}>
-              <th style={styles.th}>Patient Name</th>
-              <th style={styles.th}>Appt. Time</th>
+              <th style={styles.th}>Patient</th>
+              <th style={styles.th}>Time</th>
               <th style={styles.th}>Risk Level</th>
-              <th style={styles.th}>Risk Score</th>
+              <th style={styles.th}>Score</th>
               <th style={styles.th}>Engagement History</th>
-              <th style={styles.th}>Actions</th>
+              <th style={styles.th}>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -84,19 +82,17 @@ const Dashboard = ({ user, onLogout }) => {
                     ...styles.badge,
                     backgroundColor: apt.risk === 'High' ? '#e74c3c' : apt.risk === 'Medium' ? '#f39c12' : '#27ae60'
                   }}>
-                    {apt.risk} [cite: 20, 63]
+                    {apt.risk}
                   </span>
                 </td>
-                <td style={styles.td}><strong>{apt.score}</strong> [cite: 19, 62]</td>
-                <td style={{ ...styles.td, fontSize: '12px', color: '#7f8c8d' }}>
-                  {apt.history} [cite: 64]
-                </td>
+                <td style={styles.td}><strong>{apt.score}</strong></td>
+                <td style={{ ...styles.td, fontSize: '12px', color: '#7f8c8d' }}>{apt.history}</td>
                 <td style={styles.td}>
                   <button 
                     style={styles.actionBtn} 
-                    onClick={() => setSelectedPatient({ name: apt.patient, risk: apt.risk, score: apt.score, time: apt.time })}
+                    onClick={() => setSelectedPatient(apt)}
                   >
-                    View / Action [cite: 12, 21, 65]
+                    Remind
                   </button>
                 </td>
               </tr>
@@ -105,7 +101,8 @@ const Dashboard = ({ user, onLogout }) => {
         </table>
       </section>
 
-      {/* Intervention Modal [cite: 12, 21, 65] */}
+      <Analytics />
+
       {selectedPatient && (
         <InterventionModal 
           patient={selectedPatient} 
@@ -117,20 +114,20 @@ const Dashboard = ({ user, onLogout }) => {
 };
 
 const styles = {
-  dashboardContainer: { padding: '30px', backgroundColor: '#f4f7f6', minHeight: '100vh', fontFamily: 'sans-serif' },
+  dashboardContainer: { padding: '30px', backgroundColor: '#f4f7f6', minHeight: '100vh', fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', backgroundColor: 'white', padding: '15px 25px', borderRadius: '10px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' },
-  logoutBtn: { padding: '8px 16px', backgroundColor: '#95a5a6', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' },
+  logoutBtn: { padding: '8px 16px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' },
   statsRow: { display: 'flex', gap: '20px', marginBottom: '30px' },
   card: { flex: 1, backgroundColor: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', textAlign: 'center' },
-  statLabel: { margin: '0 0 5px 0', color: '#7f8c8d', fontSize: '14px' },
+  statLabel: { margin: '0 0 5px 0', color: '#7f8c8d', fontSize: '14px', fontWeight: 'bold' },
   tableSection: { backgroundColor: 'white', padding: '20px', borderRadius: '10px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' },
   table: { width: '100%', borderCollapse: 'collapse' },
   tableHeader: { textAlign: 'left', borderBottom: '2px solid #f4f7f6' },
-  th: { padding: '12px 8px', borderBottom: '2px solid #f4f7f6' },
-  td: { padding: '12px 8px' },
+  th: { padding: '12px 8px', color: '#2c3e50' },
+  td: { padding: '12px 8px', color: '#34495e' },
   tableRow: { borderBottom: '1px solid #f4f7f6' },
-  badge: { color: 'white', padding: '4px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' },
-  actionBtn: { padding: '6px 14px', backgroundColor: '#3498db', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600' }
+  badge: { color: 'white', padding: '4px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' },
+  actionBtn: { padding: '6px 14px', backgroundColor: '#2c6eb5', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }
 };
 
 export default Dashboard;
