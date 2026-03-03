@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import InterventionModal from './InterventionModal.jsx'; // Ensure this file exists
 
 const Dashboard = ({ user, onLogout }) => {
-  // State for the Intervention Modal [cite: 21, 65]
+  // State for the Intervention Modal
   const [selectedPatient, setSelectedPatient] = useState(null);
 
-  // Mock data utilizing features like 'previous no-shows' and 'time since last visit' [cite: 31, 32, 33]
+  // Mock data utilizing features like 'previous no-shows' and 'time since last visit'
   const appointments = [
     { 
       id: "APT001", 

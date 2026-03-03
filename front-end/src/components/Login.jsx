@@ -1,12 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import axios from "axios";
 
 const Login = ({ onLogin }) => {
-  const [email, setEmail] = useState("");
+  // const [email, setEmail] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onLogin(email);
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   onLogin(email);
+  // };
+
+  const [credentials, setCredentials] = useState({
+    email: "",
+    password: ""
+  });
+
+  const handleChange = (e) => {
+    setCredentials({ ...credentials, [e.target.name]: e.target.value })
   };
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await axios.post("http://127.0.0.1:3000/login", {
+      email: credentials.email,
+      password: credentials.password
+    });
+
+    alert("Login successful!");
+    onLogin(response.data.user);
+
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      alert("Invalid email or password.");
+    } else {
+      alert("Server error. Try again.");
+    }
+  }
+};
 
   return (
     <div style={styles.container}>
@@ -18,14 +49,23 @@ const Login = ({ onLogin }) => {
         <form onSubmit={handleSubmit} style={styles.form}>
           <label style={styles.label}>Email Address</label>
           <input 
-            type="email" 
-            placeholder="jsmith@hospital.com" 
+            name = "email"
+            type = "email" 
+            placeholder ="jsmith@hospital.com" 
+            value = {credentials.email}
             required 
             style={styles.input}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={handleChange}
           />
           <label style={styles.label}>Password</label>
-          <input type="password" placeholder="••••••••" required style={styles.input} />
+          <input 
+            name = "password"
+            type = "password"
+            placeholder ="••••••••"
+            required
+            style={styles.input}
+            onChange={handleChange}
+          />
           <button type="submit" style={styles.button}>Login</button>
         </form>
         <div style={styles.footerInfo}>
