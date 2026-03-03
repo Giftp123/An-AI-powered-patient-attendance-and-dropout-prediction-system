@@ -39,7 +39,7 @@ const Dashboard = ({ user, onLogout }) => {
         <div>
           <h2 style={{ margin: 0 }}>AI-Powered Dashboard</h2>
           <span style={{ fontSize: '12px', color: '#7f8c8d' }}>
-            Logged in as: {user.role} [cite: 24, 60]
+            Logged in as: <b>{user.name}</b>
           </span>
         </div>
         <button onClick={onLogout} style={styles.logoutBtn}>Logout</button>
@@ -62,7 +62,7 @@ const Dashboard = ({ user, onLogout }) => {
       </div>
 
       <section style={styles.tableSection}>
-        <h3 style={{ marginBottom: '15px' }}>Upcoming Appointments [cite: 18, 61]</h3>
+        <h3 style={{ marginBottom: '15px' }}>Upcoming Appointments</h3>
         <table style={styles.table}>
           <thead>
             <tr style={styles.tableHeader}>
@@ -84,19 +84,19 @@ const Dashboard = ({ user, onLogout }) => {
                     ...styles.badge,
                     backgroundColor: apt.risk === 'High' ? '#e74c3c' : apt.risk === 'Medium' ? '#f39c12' : '#27ae60'
                   }}>
-                    {apt.risk} [cite: 20, 63]
+                    {apt.risk}
                   </span>
                 </td>
                 <td style={styles.td}><strong>{apt.score}</strong> [cite: 19, 62]</td>
                 <td style={{ ...styles.td, fontSize: '12px', color: '#7f8c8d' }}>
-                  {apt.history} [cite: 64]
+                  {apt.history}
                 </td>
                 <td style={styles.td}>
                   <button 
                     style={styles.actionBtn} 
                     onClick={() => setSelectedPatient({ name: apt.patient, risk: apt.risk, score: apt.score, time: apt.time })}
                   >
-                    View / Action [cite: 12, 21, 65]
+                    View / Action
                   </button>
                 </td>
               </tr>
