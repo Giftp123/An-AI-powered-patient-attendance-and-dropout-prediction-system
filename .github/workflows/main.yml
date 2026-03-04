@@ -32,11 +32,11 @@ jobs:
           bundler-cache: true
 
       - name: Install gems
-        working-directory: backend
+        working-directory: back-end
         run: bundle install
 
       - name: Setup database
-        working-directory: backend
+        working-directory: back-end
         env:
           RAILS_ENV: test
         run: |
@@ -44,7 +44,7 @@ jobs:
           bundle exec rails db:schema:load
 
       - name: Run Rails tests
-        working-directory: backend
+        working-directory: back-end
         run: bundle exec rails test
 
   frontend:
@@ -61,13 +61,13 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        working-directory: frontend
+        working-directory: front-end
         run: npm install
 
       - name: Run React tests
-        working-directory: frontend
+        working-directory: front-end
         run: npm test -- --watchAll=false
 
       - name: Build React app
-        working-directory: frontend
+        working-directory: front-end
         run: npm run build
