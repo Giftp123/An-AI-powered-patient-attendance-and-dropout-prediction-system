@@ -47,7 +47,7 @@ jobs:
         working-directory: back-end
         run: bundle exec rails test
 
-     frontend:
+  frontend:
     name: React Frontend Build
     runs-on: ubuntu-latest
 
