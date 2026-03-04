@@ -1,4 +1,4 @@
-name: Fullstack CI/CD Pipeline
+name: Fullstack CI Pipeline
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 
 jobs:
   backend:
+    name: Rails Backend Tests
     runs-on: ubuntu-latest
 
     services:
@@ -21,46 +22,52 @@ jobs:
           - 5432:5432
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup Ruby
+      - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.2
+          bundler-cache: true
 
-      - name: Install dependencies
+      - name: Install gems
+        working-directory: backend
+        run: bundle install
+
+      - name: Setup database
+        working-directory: backend
+        env:
+          RAILS_ENV: test
         run: |
-          cd back-end
-          bundle install
+          bundle exec rails db:create
+          bundle exec rails db:schema:load
 
       - name: Run Rails tests
-        run: |
-          cd back-end
-          RAILS_ENV=test bundle exec rails db:create db:schema:load
-          bundle exec rails test
+        working-directory: backend
+        run: bundle exec rails test
 
   frontend:
+    name: React Frontend Build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
       - name: Install dependencies
-        run: |
-          cd front-end
-          npm install
+        working-directory: frontend
+        run: npm install
 
       - name: Run React tests
-        run: |
-          cd front-end
-          npm test -- --watchAll=false
+        working-directory: frontend
+        run: npm test -- --watchAll=false
 
       - name: Build React app
-        run: |
-          cd frontend
-          npm run build
+        working-directory: frontend
+        run: npm run build
