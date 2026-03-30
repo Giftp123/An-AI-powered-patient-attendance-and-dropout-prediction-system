@@ -17,6 +17,14 @@ class User
     "user-#{id}"
   end
 
+  validate :cannot_be_base_class
+
+  def cannot_be_base_class
+    if self.class == User
+      errors.add(:base, "Cannot create a base User directly")
+    end
+  end
+
   validates :name, presence: true
 
   validates :email,

@@ -1,61 +1,51 @@
 class UsersController < ApplicationController
-    skip_before_action :verify_authenticity_token
-    wrap_parameters :user, include: [:name, :email, :role, :phone_number, :profile_image_url, :password, :password_confirmation]
+    # skip_before_action :verify_authenticity_token
     before_action :set_user, only: [:show, :update, :destroy]
 
-    # GET /users
     def index
-        @users = User.all
-        render json: @users, except: [:password_digest]
+        users = User.all
+        render json: users
     end
-  
-    # GET /users/:id
+
     def show
-        @user = User.find(params[:id])
-        render json: @user, except: [:password_digest]
+        render json: user
     end
 
-    # POST /users
     def create
-        @user = User.new(user_params)
+        user = User.new(user_params)
 
-        if @user.save
-        render json: { user: @user }, status: :created
+        if user.save
+            render json: user, status: :created
         else
-        render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+            render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
         end
     end
 
-    # PATCH/PUT /users/:id
     def update
-        if @user.update(user_params)
-        render json: @user
+        if user.update(permitted_params)
+            render json: user
         else
-        render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+            render json: { errors: user.errors }, status: :unprocessable_entity
         end
     end
 
-    # DELETE /users/:id
     def destroy
-        @user.destroy
+        user.destroy
         head :no_content
     end
- 
-  private
+
+    private
 
     def set_user
-        @user = User.find(params[:id])
-        if @user.nil?
-        render json: { error: 'User not found' }, status: :not_found
-        end
+        user = User.find(params[:id])
     end
 
-    def update_user_params
-        params.require(:user).permit(:name, :email, :role, :phone_number, :profile_image_url, :password, :password_confirmation)
+    def permitted_params
+        user_params
     end
 
     def user_params
-        params.require(:user).permit(:name, :email, :role, :phone_number, :profile_image_url, :password, :password_confirmation)
+        params.permit(:name, :email, :password, :phone_number, :profile_image_url)
     end
 
 end

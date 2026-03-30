@@ -5,7 +5,7 @@ class Patient
   field :name, type: String
   field :age, type: Integer
   field :gender, type: String
-
+  field :email, type: String
   field :disease_severity, type: Integer
   field :engagement_status, type: String
   field :no_shows, type: Integer
