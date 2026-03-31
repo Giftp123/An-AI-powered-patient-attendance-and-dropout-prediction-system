@@ -5,7 +5,7 @@ import Dashboard from './Dashboard';
 import SearchPatients from './SearchPatients';
 import AddPatient from './AddPatient';
 import AdminDashboard from './components/AdminDashboard';
-import CreateStaff from './CreateStaff';
+import CreateStaff from './components/CreateStaff';
 
 function App() {
   // const [user, setUser] = useState(null);
@@ -79,6 +79,7 @@ function App() {
     <Routes>
       <Route path="/login" element={<Login />}/>
       <Route path="/admin_dashboard" element={<AdminDashboard />}/>
+      <Route path="/create_staff" element={<CreateStaff />}/>
     </Routes>
   );
 }

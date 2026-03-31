@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { loginAdmin, logoutAdmin, currentAdmin } from "../services/adminService";
+import { loginAdmin, logoutAdmin, currentAdmin, getStaffs } from "../services/adminService";
 
 export function useLoginAdmin() {
   const [loading, setLoading] = useState(false);
@@ -71,4 +71,29 @@ export function useCurrentAdmin () {
   }, []);
 
   return { admin, loading, error };
+};
+
+export const useAllStaffs = () => {
+  const [staffs, setStaffs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchStaffs = async () => {
+    try {
+      setLoading(true);
+      const data = await getStaffs();
+      setStaffs(data);
+    } catch (err) {
+      setError("Failed to fetch staffs");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  // Fetch on mount
+  useEffect(() => {
+    fetchStaffs();
+  }, []);
+
+  return { staffs, loading, error, refetch: fetchStaffs };
 };

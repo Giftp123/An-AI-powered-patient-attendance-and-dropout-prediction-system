@@ -14,3 +14,8 @@ export const currentAdmin = async () => {
   const response = await apiClient.get("/current_admin");
   return response.data;
 };
+
+export const getStaffs = async () => {
+  const response = await apiClient.get("/staffs");
+  return response.data;
+};

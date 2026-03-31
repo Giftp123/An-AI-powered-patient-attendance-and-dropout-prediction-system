@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const CreateStaff = ({ onBack }) => {
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -24,7 +26,7 @@ const CreateStaff = ({ onBack }) => {
   return (
     <div style={styles.container}>
       <header style={styles.header}>
-        <button onClick={onBack} style={styles.backBtn}>← Back to Admin Panel</button>
+        <button onClick={()=>navigate("/admin_dashboard")} style={styles.backBtn}>← Back to Admin Panel</button>
         <h2 style={{ margin: 0 }}>Register New Staff Member</h2>
       </header>
 

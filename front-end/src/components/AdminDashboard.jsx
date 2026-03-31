@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCurrentAdmin, useLogoutAdmin } from '../hooks/useAdmin';
+import { useCurrentAdmin, useLogoutAdmin, useAllStaffs } from '../hooks/useAdmin';
 import { formatDateTime } from '../utils/formatDate';
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
   const { admin, loading: adminLoading, error: adminError } = useCurrentAdmin();
   const { logout, loading: logoutLoading } = useLogoutAdmin();
+  const { staffs, loading: staffsLoading, error: staffsError } = useAllStaffs();
 
   const handleLogout = async () => {
     try {
@@ -19,13 +20,19 @@ export default function AdminDashboard() {
     }
   };
 
-  const [staffList, setStaffList] = useState([
-    { id: "STF001", name: "Dr. Nelson Mwangi", role: "Chief Clinician", department: "Outpatient", status: "Active", patients: 12 },
-    { id: "STF002", name: "Sarah Wanjiku", role: "Nurse Practitioner", department: "Pediatrics", status: "Active", patients: 8 },
-    { id: "STF003", name: "Kevin Otieno", role: "Clinic Admin", department: "Administration", status: "On Leave", patients: 0 },
-    { id: "STF004", name: "Dr. Maria Gomez", role: "Specialist", department: "Cardiology", status: "Active", patients: 15 },
-  ]);
+  function toShortId(id) {
+    const num = BigInt('0x' + id);
+    return num.toString(36).slice(0, 6).toUpperCase();
+  }
 
+  function getDaysSince(dateString) {
+    const created = new Date(dateString);
+    const now = new Date();
+
+    const diffMs = now - created; // difference in milliseconds
+    return Math.floor(diffMs / (1000 * 60 * 60 * 24)); // convert → days
+  } 
+  
   const stats = {
     totalStaff: 24,
     activeStaff: 18,
@@ -34,14 +41,23 @@ export default function AdminDashboard() {
   };
 
   if (adminError) return <p>Please log in</p>;
+  if (staffsError) return <p>{staffsError}</p>;
 
-  if (adminLoading) {
-        return (
-            <div h="50vh" flexdirection="column" gap={4}>
-                <h3>Loading dashboard...</h3>
-            </div>
-        );
-    }
+  if (adminLoading || staffsLoading) {
+      return (
+        <div h="50vh" flexdirection="column" gap={4}>
+          <h3>Loading dashboard...</h3>
+        </div>
+      );
+  }
+
+  if (logoutLoading) {
+      return (
+        <div h="50vh" flexdirection="column" gap={4}>
+          <h3>Logout in progress...</h3>
+        </div>
+      );
+  }
 
   return (
     <div style={styles.container}>
@@ -59,7 +75,7 @@ export default function AdminDashboard() {
       <div style={styles.statsRow}>
         <div style={styles.card}>
           <p style={styles.statLabel}>Total Clinical Staff</p>
-          <h3 style={styles.statValue}>{stats.totalStaff}</h3>
+          <h3 style={styles.statValue}>{staffs.length}</h3>
         </div>
         <div style={styles.card}>
           <p style={styles.statLabel}>Staff at Capacity</p>
@@ -80,7 +96,7 @@ export default function AdminDashboard() {
       <section style={styles.tableSection}>
         <div style={styles.tableHeaderRow}>
           <h3 style={{ margin: 0 }}>Clinical Staff Directory</h3>
-          <button style={styles.addBtn}>
+          <button style={styles.addBtn} onClick={()=>navigate("/create_staff")}>
             + Create New Staff Account
           </button>
         </div>
@@ -91,32 +107,32 @@ export default function AdminDashboard() {
               <th style={styles.th}>Staff ID</th>
               <th style={styles.th}>Name</th>
               <th style={styles.th}>Role / Department</th>
-              <th style={styles.th}>Assigned Patients</th>
-              <th style={styles.th}>Status</th>
+              <th style={styles.th}>Phone Number</th>
+              <th style={styles.th}>Account Lifespan</th>
               <th style={styles.th}>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {staffList.map((staff) => (
-              <tr key={staff.id} style={styles.tr}>
-                <td style={styles.td}><strong>{staff.id}</strong></td>
+            {staffs.map((staff) => (
+              <tr key={staff._id} style={styles.tr}>
+                <td style={styles.td}><strong>STF-{toShortId(staff._id)}</strong></td>
                 <td style={styles.td}>{staff.name}</td>
                 <td style={styles.td}>
-                  <div style={{ fontSize: '14px' }}>{staff.role}</div>
+                  <div style={{ fontSize: '14px' }}>{staff.staff_type}</div>
                   <div style={{ fontSize: '12px', color: '#7f8c8d' }}>{staff.department}</div>
                 </td>
-                <td style={styles.td}>{staff.patients} Patients</td>
+                <td style={styles.td}>{staff.phone_number}</td>
                 <td style={styles.td}>
                   <span style={{
                     ...styles.statusBadge,
-                    backgroundColor: staff.status === 'Active' ? '#eafaf1' : '#fef5e7',
-                    color: staff.status === 'Active' ? '#27ae60' : '#e67e22'
+                    backgroundColor: getDaysSince(staff.created_at) === 'Active' ? '#eafaf1' : '#fef5e7',
+                    color: getDaysSince(staff.created_at) === 'Active' ? '#27ae60' : '#e67e22'
                   }}>
-                    {staff.status}
+                    {getDaysSince(staff.created_at)} Day(s)
                   </span>
                 </td>
                 <td style={styles.td}>
-                  <button style={styles.editBtn}>Edit Access</button>
+                  <button style={styles.editBtn}>Delete Staff</button>
                 </td>
               </tr>
             ))}
