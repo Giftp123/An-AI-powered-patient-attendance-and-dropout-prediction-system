@@ -6,7 +6,7 @@ class SessionsController < ApplicationController
     staff = Staff.find_by(email: params[:email])
 
     if staff&.authenticate(params[:password])
-      session[:admin_id] = nil # 🔥 clear admin session
+      session[:admin_id] = nil
       session[:staff_id] = staff.id
       render json: { message: "Staff logged in", staff: staff }
     else
@@ -18,7 +18,7 @@ class SessionsController < ApplicationController
     admin = Admin.find_by(email: params[:email])
 
     if admin&.authenticate(params[:password])
-      session[:staff_id] = nil # 🔥 clear staff session
+      session[:staff_id] = nil
       session[:admin_id] = admin.id
       render json: { message: "Admin logged in", admin: admin }
     else

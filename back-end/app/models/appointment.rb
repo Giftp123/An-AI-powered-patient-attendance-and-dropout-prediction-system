@@ -13,6 +13,7 @@ class Appointment
   validates :status, inclusion: { in: %w[Scheduled Completed Cancelled] }
 
   after_create :update_patient_data
+  after_create :send_reminder_email
 
   def upcoming?
     appointment_date >= Date.today
@@ -30,5 +31,10 @@ class Appointment
 
     lead_time = [(appointment_date - created_at.to_date).to_i, 0].max
     patient.update(lead_time_days: lead_time)
+  end
+
+  def send_reminder_email
+    return unless upcoming?
+    PatientMailer.appointment_reminder(patient, self).deliver_now
   end
 end

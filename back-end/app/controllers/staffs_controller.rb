@@ -1,5 +1,5 @@
 class StaffsController < UsersController
-  before_action :authenticate_staff!, except: [:create]
+  before_action :authenticate_admin!, except: [:show]
   skip_before_action :authenticate_user!, only: [:create]
     # skip_before_action :verify_authenticity_token
 

@@ -14,28 +14,23 @@ class ApplicationController < ActionController::Base
 
   private
 
-  # 🔐 General auth check
   def authenticate_user!
     return if current_staff || current_admin
-
     render json: { error: "Not authorized" }, status: :unauthorized
   end
-
-  # 👨‍⚕️ Staff auth
+  
   def authenticate_staff!
     unless current_staff
       render json: { error: "Staff not authorized" }, status: :unauthorized
     end
   end
-
-  # 👑 Admin auth
+  
   def authenticate_admin!
     unless current_admin
       render json: { error: "Admin not authorized" }, status: :unauthorized
     end
   end
-
-  # 🔍 Current user helpers
+  
   def current_staff
     @current_staff ||= Staff.where(id: session[:staff_id]).first
   end

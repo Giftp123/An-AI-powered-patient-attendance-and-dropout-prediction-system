@@ -39,6 +39,24 @@ class AppointmentsController < ApplicationController
         head :no_content
     end
 
+    def send_reminder
+        appointment = Appointment.find(params[:id])
+
+        unless appointment.upcoming?
+            return render json: { error: "Cannot send reminder for past appointment" }, status: :unprocessable_entity
+        end
+
+        PatientMailer
+            .appointment_reminder(appointment.patient, appointment)
+            .deliver_now
+
+        render json: {
+            message: "Reminder sent",
+            patient: appointment.patient.name,
+            date: appointment.appointment_date
+        }
+    end
+
     private
 
     def appointment_params

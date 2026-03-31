@@ -38,7 +38,6 @@ class PatientsController < ApplicationController
         head :no_content
     end
 
-    # 🔥 OPTIONAL endpoint (very nice for demo)
     def predict
         patient = Patient.find(params[:id])
         result = patient.update_risk!
@@ -63,12 +62,10 @@ class PatientsController < ApplicationController
             )
             )
         end
-
-        # 🔥 Now trigger predictions
+        
         created.each do |patient|
             patient.update_risk!
         end
-
         render json: { message: "#{created.count} patients created with predictions" }, status: :created
     end
 

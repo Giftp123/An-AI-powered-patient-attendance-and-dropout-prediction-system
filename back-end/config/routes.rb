@@ -34,5 +34,9 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :appointments
+  resources :appointments do
+    member do
+      post :send_reminder
+    end
+  end
 end
