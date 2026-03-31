@@ -1,27 +1,44 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSignupStaffs } from '../hooks/useAdmin';
 
-const CreateStaff = ({ onBack }) => {
+export default function CreateStaff() {
+  const { signup, loading: signupLoading, error: signupError } = useSignupStaffs();
+  const [submitting, setSubmitting] = useState(false);
+
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    role: 'Clinic Staff',
-    phone: '',
-    photo: null
+    staff_type: '',
+    department: '',
+    phone_number: ''
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('New Staff Data:', formData);
-    alert(`Account created successfully for ${formData.name}!`);
-    onBack();
+    try {
+      setSubmitting(true);
+
+      let payload = { ...formData };
+      console.log(payload);
+
+      await signup(payload);
+      alert(`Account successfully created! Welcome Dr. ${formData.name}!`);
+      navigate("/admin_dashboard");
+    } catch (error) {
+      console.error(error);
+      alert("Oops! Something went wrong! Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleFileChange = (e) => {
-    setFormData({ ...formData, photo: e.target.files[0] });
-  };
+  // const handleFileChange = (e) => {
+  //   setFormData({ ...formData, photo: e.target.files[0] });
+  // };
+  
 
   return (
     <div style={styles.container}>
@@ -77,41 +94,54 @@ const CreateStaff = ({ onBack }) => {
                 style={styles.input} 
                 placeholder="+254 7XX XXX XXX"
                 value={formData.phone}
-                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                onChange={(e) => setFormData({...formData, phone_number: e.target.value})}
               />
             </div>
           </div>
 
           <div style={styles.row}>
             <div style={styles.inputGroup}>
-              <label style={styles.label}>Assigned Role</label>
+              <label style={styles.label}>Staff Type</label>
               <select 
                 style={styles.input}
-                value={formData.role}
-                onChange={(e) => setFormData({...formData, role: e.target.value})}
+                value={formData.staff_type}
+                onChange={(e) => setFormData({...formData, staff_type: e.target.value})}
               >
-                <option value="Clinic Staff">Clinic Staff</option>
+                <option value="Clinic Doctor">Clinic Doctor</option>
                 <option value="Nurse Practitioner">Nurse Practitioner</option>
                 <option value="Senior Clinician">Senior Clinician</option>
-                <option value="Specialist">Specialist</option>
-                <option value="System Administrator">System Administrator</option>
+                <option value="Pharmacy Specialist">Pharmacy Specialist</option>
+                <option value="Physiotherapy Expert">Physiotherapy Expert</option>
               </select>
             </div>
+
             <div style={styles.inputGroup}>
-              <label style={styles.label}>Profile Photo</label>
-              <input 
-                type="file" 
-                accept="image/*"
-                onChange={handleFileChange}
-                style={styles.fileInput}
-              />
+              <label style={styles.label}>Department</label>
+              <select 
+                style={styles.input}
+                value={formData.department}
+                onChange={(e) => setFormData({...formData, department: e.target.value})}
+              >
+                <option value="Cardiology">Cardiology</option>
+                <option value="Neurology">Neurology</option>
+                <option value="Opthamology">Opthamology</option>
+                <option value="Anesthesiology">Anesthesiology</option>
+                <option value="Intensive Care Unit (ICU)">Intensive Care Unit (ICU)</option>
+              </select>
             </div>
+            
           </div>
 
           <div style={styles.footer}>
-            <button type="button" onClick={onBack} style={styles.cancelBtn}>Cancel</button>
-            <button type="submit" style={styles.submitBtn}>Create Staff Account</button>
+            <button type="submit" style={styles.submitBtn}
+            >Create Staff Account</button>
           </div>
+
+          {(signupError) && (
+            <p color="red.500" fontSize="sm">
+              {signupError?.message}
+            </p>
+          )}
         </form>
       </div>
     </div>
@@ -133,5 +163,3 @@ const styles = {
   cancelBtn: { padding: '12px 25px', borderRadius: '8px', border: '1px solid #ddd', backgroundColor: 'white', cursor: 'pointer', fontWeight: 'bold', color: '#7f8c8d' },
   submitBtn: { padding: '12px 30px', borderRadius: '8px', border: 'none', backgroundColor: '#2c3e50', color: 'white', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px' }
 };
-
-export default CreateStaff;

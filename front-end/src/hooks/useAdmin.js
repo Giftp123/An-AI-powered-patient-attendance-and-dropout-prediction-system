@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { loginAdmin, logoutAdmin, currentAdmin, getStaffs } from "../services/adminService";
+import { loginAdmin, logoutAdmin, currentAdmin, getStaffs, signupStaffs, deleteStaff } from "../services/adminService";
 
 export function useLoginAdmin() {
   const [loading, setLoading] = useState(false);
@@ -97,3 +97,44 @@ export const useAllStaffs = () => {
 
   return { staffs, loading, error, refetch: fetchStaffs };
 };
+
+export const useSignupStaffs = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const signup = async (staffData) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await signupStaffs(staffData);
+      return data;
+    } catch (err) {
+      setError(err.response?.data?.error || "Signup failed");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { signup, loading, error };
+};
+
+export function useDeleteStaff() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const remove = async (id) => {
+    try {
+      setLoading(true);
+      setError(null);
+      await deleteStaff(id);
+    } catch (err) {
+      setError(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { deleteStaff: remove, loading, error };
+}

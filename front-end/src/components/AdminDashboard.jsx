@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCurrentAdmin, useLogoutAdmin, useAllStaffs } from '../hooks/useAdmin';
+import { useCurrentAdmin, useLogoutAdmin, useAllStaffs, useDeleteStaff } from '../hooks/useAdmin';
 import { formatDateTime } from '../utils/formatDate';
 
 export default function AdminDashboard() {
@@ -8,6 +8,7 @@ export default function AdminDashboard() {
   const { admin, loading: adminLoading, error: adminError } = useCurrentAdmin();
   const { logout, loading: logoutLoading } = useLogoutAdmin();
   const { staffs, loading: staffsLoading, error: staffsError } = useAllStaffs();
+  const { deleteStaff, loading: deleteLoading, error: deleteError} = useDeleteStaff();
 
   const handleLogout = async () => {
     try {
@@ -32,6 +33,22 @@ export default function AdminDashboard() {
     const diffMs = now - created; // difference in milliseconds
     return Math.floor(diffMs / (1000 * 60 * 60 * 24)); // convert → days
   } 
+
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this account? This cannot be undone."
+    );
+    if (!confirmed) return;
+
+    try {
+      await deleteStaff(id);
+      alert("Staff account has been deleted successfully!");
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+      alert("Oops! Something went wrong! Failed to delete account.");
+    }
+  };
   
   const stats = {
     totalStaff: 24,
@@ -132,13 +149,18 @@ export default function AdminDashboard() {
                   </span>
                 </td>
                 <td style={styles.td}>
-                  <button style={styles.editBtn}>Delete Staff</button>
+                  <button style={styles.editBtn} onClick={() => handleDelete(staff._id)}>Delete Staff</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </section>
+      {(deleteError) && (
+        <p color="red.500" fontSize="sm">
+          {deleteError?.message}
+        </p>
+      )}
     </div>
   );
 };

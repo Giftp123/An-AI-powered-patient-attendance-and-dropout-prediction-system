@@ -4,7 +4,7 @@ class Staff < User
 
   has_many :appointments
 
-  validates :staff_type, inclusion: { in: %w[Doctor Nurse] }
+  validates :staff_type, presence: :true
   validates :department, presence: true
 
   before_save -> { self.staff_type = staff_type.capitalize if staff_type.present? }

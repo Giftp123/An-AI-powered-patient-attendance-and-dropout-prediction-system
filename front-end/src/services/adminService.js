@@ -19,3 +19,12 @@ export const getStaffs = async () => {
   const response = await apiClient.get("/staffs");
   return response.data;
 };
+
+export const signupStaffs = async (staffData) => {
+  const response = await apiClient.post("/staffs", staffData);
+  return response.data;
+};
+
+export const deleteStaff = async (staffId) => {
+  await apiClient.delete(`/staffs/${staffId}`);
+};

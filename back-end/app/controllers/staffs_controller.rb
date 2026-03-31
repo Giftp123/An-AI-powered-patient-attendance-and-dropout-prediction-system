@@ -9,7 +9,7 @@ class StaffsController < UsersController
     end
 
     def show
-        staff = current_staff
+        staff = Staff.find(params[:id])
         render json: staff
     end
 
@@ -34,7 +34,7 @@ class StaffsController < UsersController
     end
 
     def destroy
-        staff = current_staff
+        staff = Staff.find(params[:id])
         staff.destroy
         head :no_content
     end
