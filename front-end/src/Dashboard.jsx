@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import InterventionModal from './InterventionModal';
+// import InterventionModal from './InterventionModal';
 import Analytics from './Analytics';
 import AppointmentModal from './AppointmentModal';
 

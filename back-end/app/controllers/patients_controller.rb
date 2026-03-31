@@ -14,7 +14,7 @@ class PatientsController < ApplicationController
         patient = Patient.new(patient_params)
 
         if patient.save
-            patient.update_risk! # 🔥 trigger ML immediately
+            patient.update_risk!
             render json: patient, status: :created
         else
             render json: { errors: patient.errors.full_messages }, status: :unprocessable_entity
@@ -25,7 +25,7 @@ class PatientsController < ApplicationController
         patient = Patient.find(params[:id])
 
         if patient.update(patient_params)
-            patient.update_risk! # 🔥 recalc risk on update
+            patient.update_risk!
             render json: patient
         else
             render json: { errors: patient.errors.full_messages }, status: :unprocessable_entity
