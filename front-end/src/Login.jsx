@@ -65,14 +65,14 @@ const Login = ({ onLogin }) => {
             style={{...styles.secondaryButton, borderColor: '#102a43', color: '#102a43'}}
             onClick={() => onLogin('admin@clinic.com')}
           >
-            Admin 
+            Admin Demo
           </button>
           <button 
             type="button" 
             style={{...styles.secondaryButton, borderColor: '#27ae60', color: '#27ae60'}}
             onClick={() => onLogin('staff@clinic.com')}
           >
-            Staff 
+            Staff Demo
           </button>
         </div>
 
