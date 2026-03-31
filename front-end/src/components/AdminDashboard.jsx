@@ -1,6 +1,24 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useCurrentAdmin, useLogoutAdmin } from '../hooks/useAdmin';
+import { formatDateTime } from '../utils/formatDate';
 
-const AdminDashboard = ({ user, onLogout, onCreateStaff }) => {
+export default function AdminDashboard() {
+  const navigate = useNavigate()
+  const { admin, loading: adminLoading, error: adminError } = useCurrentAdmin();
+  const { logout, loading: logoutLoading } = useLogoutAdmin();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      alert(`Logout successful! We hope to see you again!`)
+      navigate("/login")
+    } catch (err) {
+      console.error(err);
+      alert(`Oops! Something went wrong!`)
+    }
+  };
+
   const [staffList, setStaffList] = useState([
     { id: "STF001", name: "Dr. Nelson Mwangi", role: "Chief Clinician", department: "Outpatient", status: "Active", patients: 12 },
     { id: "STF002", name: "Sarah Wanjiku", role: "Nurse Practitioner", department: "Pediatrics", status: "Active", patients: 8 },
@@ -15,16 +33,26 @@ const AdminDashboard = ({ user, onLogout, onCreateStaff }) => {
     pendingRequests: 3
   };
 
+  if (adminError) return <p>Please log in</p>;
+
+  if (adminLoading) {
+        return (
+            <div h="50vh" flexdirection="column" gap={4}>
+                <h3>Loading dashboard...</h3>
+            </div>
+        );
+    }
+
   return (
     <div style={styles.container}>
       <header style={styles.header}>
         <div>
           <h2 style={{ margin: 0 }}>System Admin Control Panel</h2>
           <span style={{ fontSize: '12px', color: '#7f8c8d' }}>
-            Administrator: {user.email} | Last Login: Today, 08:30 AM
+            Administrator: {admin.email} | Last updated: {formatDateTime(admin.updated_at)}
           </span>
         </div>
-        <button onClick={onLogout} style={styles.logoutBtn}>Logout</button>
+        <button style={styles.logoutBtn} onClick={handleLogout}>Logout</button>
       </header>
 
       {/* Admin Overview & Capacity */}
@@ -52,7 +80,7 @@ const AdminDashboard = ({ user, onLogout, onCreateStaff }) => {
       <section style={styles.tableSection}>
         <div style={styles.tableHeaderRow}>
           <h3 style={{ margin: 0 }}>Clinical Staff Directory</h3>
-          <button style={styles.addBtn} onClick={onCreateStaff}>
+          <button style={styles.addBtn}>
             + Create New Staff Account
           </button>
         </div>
@@ -119,5 +147,3 @@ const styles = {
   statusBadge: { padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' },
   editBtn: { padding: '6px 12px', backgroundColor: '#f8f9fa', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }
 };
-
-export default AdminDashboard;

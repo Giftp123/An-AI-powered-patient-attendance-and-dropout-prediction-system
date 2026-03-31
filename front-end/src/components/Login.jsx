@@ -18,7 +18,7 @@ export default function Login() {
         const data = await login(email, password);
         console.log("Logged in:", data.admin);
         alert(`Login successful! Welcome back!`);
-        // navigate("/admin_dashboard");
+        navigate("/admin_dashboard");
       } else {
         console.log("Hi");
       }

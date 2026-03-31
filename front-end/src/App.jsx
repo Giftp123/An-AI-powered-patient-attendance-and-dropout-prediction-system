@@ -4,7 +4,7 @@ import Login from './components/Login';
 import Dashboard from './Dashboard';
 import SearchPatients from './SearchPatients';
 import AddPatient from './AddPatient';
-import AdminDashboard from './AdminDashboard';
+import AdminDashboard from './components/AdminDashboard';
 import CreateStaff from './CreateStaff';
 
 function App() {
@@ -78,7 +78,7 @@ function App() {
 
     <Routes>
       <Route path="/login" element={<Login />}/>
-      <Route path="/admin_dashboard" element={<>hi</>}/>
+      <Route path="/admin_dashboard" element={<AdminDashboard />}/>
     </Routes>
   );
 }

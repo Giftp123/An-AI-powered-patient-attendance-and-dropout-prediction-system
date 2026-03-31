@@ -9,3 +9,8 @@ export const logoutAdmin = async () => {
   const response = await apiClient.delete("/logout");
   return response.data;
 };
+
+export const currentAdmin = async () => {
+  const response = await apiClient.get("/current_admin");
+  return response.data;
+};

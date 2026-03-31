@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { loginAdmin } from "../services/adminService";
-import { logoutAdmin } from "../services/adminService";
+import { useState, useEffect } from "react";
+import { loginAdmin, logoutAdmin, currentAdmin } from "../services/adminService";
 
 export function useLoginAdmin() {
   const [loading, setLoading] = useState(false);
@@ -50,4 +49,26 @@ export function useLogoutAdmin() {
   };
 
   return { logout, loading, error };
+};
+
+export function useCurrentAdmin () {
+  const [admin, setAdmin] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAdmin = async () => {
+      try {
+        const data = await currentAdmin();
+        setAdmin(data);
+      } catch (err) {
+        setError("Not authenticated");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAdmin();
+  }, []);
+
+  return { admin, loading, error };
 };
