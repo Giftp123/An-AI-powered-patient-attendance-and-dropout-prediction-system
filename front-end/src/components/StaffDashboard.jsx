@@ -16,6 +16,8 @@ export default function StaffDashboard ({ user, onLogout, onNavigateToSearch, on
   const [selectedAppt, setSelectedAppt] = useState(null);
   const [showApptModal, setShowApptModal] = useState(false);
   const [apptPatient, setApptPatient] = useState(null);
+  const [showCharts, setShowCharts] = useState(true);
+  const now = new Date();
 
   // console.log(fetchedAppointments);
 
@@ -74,7 +76,14 @@ export default function StaffDashboard ({ user, onLogout, onNavigateToSearch, on
 
   if (staffLoading || appointmentsLoading) {
       return (
-        <div h="50vh" flexdirection="column" gap={4}>
+        <div style={{
+          height: "50vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          color: "#7f8c8d"
+        }}>
           <h3>Loading dashboard...</h3>
         </div>
       );
@@ -82,10 +91,17 @@ export default function StaffDashboard ({ user, onLogout, onNavigateToSearch, on
 
   if (logoutLoading) {
       return (
-        <div h="50vh" flexdirection="column" gap={4}>
-          <h3>Logout in progress...</h3>
-        </div>
-      );
+      <div style={{
+        height: "50vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        color: "#7f8c8d"
+      }}>
+        <h3>Logout in progress...</h3>
+      </div>
+    );
   }
 
   return (
@@ -94,22 +110,29 @@ export default function StaffDashboard ({ user, onLogout, onNavigateToSearch, on
           <div>
             <h2 style={{ margin: 0 }}>Hospital Staff Dashboard</h2>
             <span style={{ fontSize: '12px', color: '#7f8c8d' }}>
-              Name: {staff.name} | Department: {staff.department} 
+              Name: {staff.name} | Department: {staff.department} | Date: {now.toLocaleDateString()}
             </span>
           </div>
           <button onClick={() => handleOpenApptModal()} style={styles.scheduleBtn}>+ Schedule Appt</button>
-          <button style={styles.searchBtn}>Search Patients</button>
+          <button style={styles.searchBtn} onClick={()=>navigate("/patient_space")}>Search Patients</button>
           <button style={styles.logoutBtn} onClick={handleLogout}>Logout</button>
         </header>
 
-      <div style={styles.statsRow}>
-        <div style={{ ...styles.card, borderTop: '4px solid #e74c3c' }}>
-          <p style={styles.statLabel}>Total Appointments</p>
-          <h3>{fetchedAppointments.length}</h3>
-          <p style={styles.statLabel}>Appointment Distribution</p>
-          <AppointmentsPieChart appointments={fetchedAppointments}/>
-        </div>
-      </div>
+        <button 
+          onClick={() => setShowCharts(prev => !prev)}
+          style={styles.toggleBtn}
+        >
+          {showCharts ? "Hide Analytics ▲" : "Show Analytics ▼"}
+        </button>
+
+        {showCharts && (
+          <div style={styles.chartsRow}>
+            <div style={{ ...styles.card, flex: 1, borderTop: '4px solid #e74c3c' }}>
+              <p style={styles.statLabel}>Appointment Distribution Analysis</p>
+              <AppointmentsPieChart appointments={fetchedAppointments}/>
+            </div>
+          </div>
+        )}  
 
       <section style={styles.tableSection}>
         <h3 style={{ marginBottom: '15px' }}>Appointment Schedule</h3>
@@ -254,5 +277,22 @@ const styles = {
   tableRow: { transition: 'background-color 0.2s' },
   badge: { color: 'white', padding: '5px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' },
   actionBtn: { padding: '8px 18px', backgroundColor: '#2c6eb5', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' },
-  linkBtn: { background: 'none', border: 'none', color: '#2c6eb5', cursor: 'pointer', padding: 0, fontSize: '15px', textAlign: 'left', textDecoration: 'none', borderBottom: '1px solid transparent' }
+  linkBtn: { background: 'none', border: 'none', color: '#2c6eb5', cursor: 'pointer', padding: 0, fontSize: '15px', textAlign: 'left', textDecoration: 'none', borderBottom: '1px solid transparent' },
+  chartsRow: {
+    display: 'flex',
+    gap: '20px',
+    marginTop: '20px',
+    alignItems: 'stretch'
+  },
+  toggleBtn: {
+    marginTop: '10px',
+    marginBottom: '20px',
+    padding: '10px 14px',
+    border: 'none',
+    borderRadius: '8px',
+    backgroundColor: '#2c6eb5',
+    color: 'white',
+    cursor: 'pointer',
+    fontWeight: '600'
+  } 
 };
