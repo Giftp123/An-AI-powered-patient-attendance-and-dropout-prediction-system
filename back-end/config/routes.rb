@@ -25,7 +25,7 @@ Rails.application.routes.draw do
   get "/current_admin", to: "sessions#current_admin_info"
 
   resources :patients do
-    resources :appointments
+    resources :appointments, shallow: true
     collection do
       post :bulk_create
     end

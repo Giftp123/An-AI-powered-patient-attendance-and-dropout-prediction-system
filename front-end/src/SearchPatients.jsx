@@ -28,7 +28,19 @@ const SearchPatients = ({ onBack, onViewPatient }) => {
   const currentPatients = filteredPatients.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(filteredPatients.length / patientsPerPage);
 
-  if (patientsError) return <p>{patientsError}</p>;
+  if (patientsError) {
+    return (
+      <div style={{
+        height: "50vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        color: "#ff2a2a"
+      }}>
+        <h3>{patientsError}</h3>
+      </div>
+    );}
 
   if (patientsLoading) {
     return (
@@ -40,7 +52,7 @@ const SearchPatients = ({ onBack, onViewPatient }) => {
         alignItems: "center",
         color: "#7f8c8d"
       }}>
-        <h3>Loading patient space...</h3>
+        <h3>Loading patient profiles...</h3>
       </div>
     );
   }
@@ -127,7 +139,7 @@ const SearchPatients = ({ onBack, onViewPatient }) => {
             </div>
             <button 
               style={styles.viewBtn} 
-              onClick={() => onViewPatient(patient)}
+              onClick={() => navigate(`/view_patients/${patient._id}`)}
             >
               View Full Profile
             </button>

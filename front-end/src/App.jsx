@@ -3,9 +3,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './components/Login';
 import StaffDashboard from './components/StaffDashboard';
 import SearchPatients from './SearchPatients';
-import AddPatient from './AddPatient';
 import AdminDashboard from './components/AdminDashboard';
 import CreateStaff from './components/CreateStaff';
+import ViewPatient from './components/ViewPatient';
 
 function App() {
   // const [user, setUser] = useState(null);
@@ -81,7 +81,9 @@ function App() {
       <Route path="/admin_dashboard" element={<AdminDashboard />}/>
       <Route path="/create_staff" element={<CreateStaff />}/>
       <Route path="/staff_dashboard" element={<StaffDashboard />}/>
-      <Route path="/patient_space" element={<SearchPatients />}/>
+      <Route path="/view_patients" element={<SearchPatients />}/>
+      {/* <Route path="/view_patient" element={<AddPatient />}/> */}
+      <Route path="/view_patients/:id" element={<ViewPatient />}/>
 
     </Routes>
   );

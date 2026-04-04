@@ -114,7 +114,7 @@ export default function StaffDashboard ({ user, onLogout, onNavigateToSearch, on
             </span>
           </div>
           <button onClick={() => handleOpenApptModal()} style={styles.scheduleBtn}>+ Schedule Appt</button>
-          <button style={styles.searchBtn} onClick={()=>navigate("/patient_space")}>Search Patients</button>
+          <button style={styles.searchBtn} onClick={()=>navigate("/view_patients")}>Search Patients</button>
           <button style={styles.logoutBtn} onClick={handleLogout}>Logout</button>
         </header>
 

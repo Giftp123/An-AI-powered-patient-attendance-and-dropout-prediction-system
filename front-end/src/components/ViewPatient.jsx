@@ -1,42 +1,73 @@
 import React, { useState } from 'react';
-import AppointmentModal from './AppointmentModal';
+import { useNavigate } from 'react-router-dom';
+import AppointmentModal from '../AppointmentModal';
+import { useParams } from 'react-router-dom';
+import { useGetPatientById, useGetPatientAppointments } from '../hooks/usePatient';
+import PatientAnalytics from './PatientAnalytics';
 
-const AddPatient = ({ patient, onBack }) => {
+const ViewPatient = ({ onBack }) => {
+  const { id } = useParams();
+  const { patient, loading: patientLoading, error: patientError } = useGetPatientById(id);
+  const { patientAppts, loading: appointmentsLoading, error: appointmentsError } = useGetPatientAppointments(id);  
   const [showApptModal, setShowApptModal] = useState(false);
+  const [showCharts, setShowCharts] = useState(true);
 
-  const defaultData = {
-    id: "PAT001",
-    name: "Unknown Patient",
-    age: "N/A",
-    gender: "Not Specified",
-    phone: "No Contact Info",
-    email: "no-email@clinic.com",
-    risk: "Low",
-    score: "0%"
+  const upcomingAppointment = patientAppts?.filter(appt => appt.status === "Scheduled")
+  .sort((a, b) => new Date(a.appointment_date) - new Date(b.appointment_date))[0];
+
+  const formatTime = (time) => {
+    if (!time) return "";
+    const [hour, minute] = time.split(":");
+    const h = Number(hour);
+    const suffix = h >= 12 ? "PM" : "AM";
+    const adjusted = h % 12 || 12;
+    return `${adjusted}:${minute} ${suffix}`;
   };
+  
 
-  // Merge passed patient data with defaults
-  const data = { ...defaultData, ...patient };
+  const navigate = useNavigate()
+  // console.log(patient);
+  // console.log(patientAppts);  
 
-  const pastAppointments = [
-    { date: "2024-02-15", type: "Checkup", status: "Attended", doctor: "Dr. Nelson" },
-    { date: "2024-01-10", type: "Follow-up", status: "No-show", doctor: "Dr. Nelson" },
-    { date: "2023-11-20", type: "Initial Consultation", status: "Attended", doctor: "Dr. Sarah" },
-  ];
+  if (patientError || appointmentsError) {
+  return (
+    <div style={{
+      height: "50vh",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      color: "#ff2a2a"
+    }}>
+      <h3>{patientError || appointmentsError}</h3>
+    </div>
+  );}
+
+  if (patientLoading || appointmentsLoading) {
+    return (
+      <div style={{
+        height: "50vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        color: "#7f8c8d"
+      }}>
+        <h3>Loading patient details...</h3>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>
       <header style={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <button onClick={onBack} style={styles.backBtn}>← Back</button>
-          <h2 style={{ margin: 0 }}>Patient Profile: {data.name}</h2>
+          <button onClick={()=>navigate("/view_patients")} style={styles.backBtn}>← Back</button>
+          <h2 style={{ margin: 0 }}>Patient Profile: {patient.name}</h2>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button style={styles.scheduleBtn} onClick={() => setShowApptModal(true)}>
             Schedule Appointment
-          </button>
-          <button style={styles.addNewBtn} onClick={() => alert('Opening Add New Patient Form...')}>
-            + Add New Patient
           </button>
         </div>
       </header>
@@ -46,14 +77,14 @@ const AddPatient = ({ patient, onBack }) => {
         <section style={styles.card}>
           <h3 style={styles.cardTitle}>Personal Details</h3>
           <div style={styles.detailsGrid}>
-            <div><label style={styles.label}>Patient ID:</label><p>{data.id}</p></div>
-            <div><label style={styles.label}>Age / Gender:</label><p>{data.age} / {data.gender}</p></div>
-            <div><label style={styles.label}>Phone:</label><p>{data.phone}</p></div>
-            <div><label style={styles.label}>Email:</label><p>{data.email}</p></div>
+            <div><label style={styles.label}>Patient ID:</label><p>{patient._id}</p></div>
+            <div><label style={styles.label}>Age / Gender:</label><p>{patient.age} / {patient.gender}</p></div>
+            <div><label style={styles.label}>Engagement Status:</label><p>{patient.engagement_status}</p></div>
+            <div><label style={styles.label}>Email:</label><p>{patient.email}</p></div>
             <div>
               <label style={styles.label}>Risk Status:</label>
-              <p style={{ color: data.risk === 'High' ? '#e74c3c' : '#27ae60', fontWeight: 'bold' }}>
-                {data.risk} ({data.score})
+              <p style={{ color: patient.risk_level === 'High' ? '#e74c3c' : '#27ae60', fontWeight: 'bold' }}>
+                {patient.risk_level}
               </p>
             </div>
           </div>
@@ -63,15 +94,51 @@ const AddPatient = ({ patient, onBack }) => {
         <section style={styles.card}>
           <h3 style={styles.cardTitle}>Upcoming Appointment</h3>
           <div style={styles.upcomingBox}>
-            <p><strong>Date:</strong> March 25, 2026</p>
-            <p><strong>Time:</strong> 10:30 AM</p>
-            <p><strong>Purpose:</strong> Routine Follow-up</p>
-            <div style={styles.btnGroup}>
-              <button style={styles.completeBtn} onClick={() => alert('Marked as Complete')}>Mark Complete</button>
-              <button style={styles.notifyBtn} onClick={() => alert('Notification sent to patient!')}>Notify Patient</button>
-            </div>
+            {upcomingAppointment ? (
+              <>
+                <p>
+                  <strong>When:</strong>{" "}
+                  {upcomingAppointment.appointment_date} at {formatTime(upcomingAppointment.appointment_time)}
+                </p>
+                <p><strong>Purpose:</strong> {upcomingAppointment.appointment_details}</p>
+                <div style={styles.btnGroup}>
+                  <button 
+                    style={styles.completeBtn} 
+                    onClick={() => handleClosing(upcomingAppointment._id)}
+                  >
+                    Mark Complete
+                  </button>
+                  <button 
+                    style={styles.notifyBtn} 
+                    onClick={() => alert('Notification sent to patient!')}
+                  >
+                    Notify Patient
+                  </button>
+                </div>
+              </>
+            ) : (
+              <p style={{ color: "#7f8c8d" }}>
+                No upcoming appointments.
+              </p>
+            )}
           </div>
         </section>
+
+        <button 
+          onClick={() => setShowCharts(prev => !prev)}
+          style={styles.toggleBtn}
+        >
+          {showCharts ? "Hide Analytics ▲" : "Show Analytics ▼"}
+        </button>
+
+        {showCharts && (
+          <div style={styles.chartsRow}>
+            <div style={{ ...styles.card, flex: 1, borderTop: '4px solid #e74c3c' }}>
+              <p style={styles.statLabel}>Appointment History Chart</p>
+              <PatientAnalytics appointments={patientAppts}/>
+            </div>
+          </div>
+        )}  
 
         {/* Past Appointments Section */}
         <section style={{ ...styles.card, gridColumn: 'span 2' }}>
@@ -80,20 +147,22 @@ const AddPatient = ({ patient, onBack }) => {
             <thead>
               <tr style={styles.tableHeader}>
                 <th style={styles.th}>Date</th>
+                <th style={styles.th}>Time</th>
                 <th style={styles.th}>Type</th>
                 <th style={styles.th}>Doctor</th>
                 <th style={styles.th}>Status</th>
               </tr>
             </thead>
             <tbody>
-              {pastAppointments.map((apt, i) => (
+              {patientAppts.map((apt, i) => (
                 <tr key={i} style={styles.tableRow}>
-                  <td style={styles.td}>{apt.date}</td>
-                  <td style={styles.td}>{apt.type}</td>
-                  <td style={styles.td}>{apt.doctor}</td>
+                  <td style={styles.td}>{apt.appointment_date}</td>
+                  <td style={styles.td}>{apt.appointment_time}</td>
+                  <td style={styles.td}>{apt.appointment_details}</td>
+                  <td style={styles.td}>{apt.staff.name}</td>
                   <td style={styles.td}>
                     <span style={{ 
-                      color: apt.status === 'Attended' ? '#27ae60' : '#e74c3c',
+                      color: apt.status === 'Completed' ? '#27ae60' : '#e74c3c',
                       fontWeight: '600',
                       fontSize: '13px'
                     }}>
@@ -105,33 +174,12 @@ const AddPatient = ({ patient, onBack }) => {
             </tbody>
           </table>
         </section>
-
-        {/* Attendance Charts Section */}
-        <section style={{ ...styles.card, gridColumn: 'span 2' }}>
-          <h3 style={styles.cardTitle}>Attendance Trends</h3>
-          <div style={styles.chartContainer}>
-            <div style={styles.chartLegend}>
-              <span>Attendance Rate: 66%</span>
-              <span>Total Visits: 12</span>
-            </div>
-            <div style={styles.barArea}>
-              {[40, 70, 20, 90, 60, 80].map((h, i) => (
-                <div key={i} style={{ ...styles.bar, height: `${h}%` }}>
-                  <span style={styles.barLabel}>M{i+1}</span>
-                </div>
-              ))}
-            </div>
-            <p style={{ textAlign: 'center', fontSize: '12px', color: '#7f8c8d', marginTop: '15px' }}>
-              6-Month Attendance Frequency
-            </p>
-          </div>
-        </section>
       </div>
 
       {showApptModal && (
         <AppointmentModal 
-          patientId={data.id}
-          patientName={data.name}
+          patientId={patient._id}
+          patientName={patient.name}
           onClose={() => setShowApptModal(false)}
           onSubmit={(formData) => console.log('Appointment scheduled:', formData)}
         />
@@ -167,4 +215,4 @@ const styles = {
   barLabel: { position: 'absolute', bottom: '-25px', left: '50%', transform: 'translateX(-50%)', fontSize: '10px', color: '#7f8c8d' }
 };
 
-export default AddPatient;
+export default ViewPatient;
