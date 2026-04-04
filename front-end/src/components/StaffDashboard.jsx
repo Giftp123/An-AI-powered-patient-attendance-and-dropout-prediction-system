@@ -1,12 +1,34 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 // import InterventionModal from './InterventionModal';
-import Analytics from './Analytics';
-import AppointmentModal from './AppointmentModal';
+import Analytics from '../Analytics';
+import AppointmentModal from '../AppointmentModal';
+import { useCurrentStaff, useLogoutStaff, fetchAllAppointments } from '../hooks/useStaff';
 
-const Dashboard = ({ user, onLogout, onNavigateToSearch, onViewPatient }) => {
+export default function StaffDashboard ({ user, onLogout, onNavigateToSearch, onViewPatient }) {
+  const { staff, loading: staffLoading, error: staffError } = useCurrentStaff();
+  const { appointments: fetchedAppointments, loading: appointmentsLoading, error: appointmentsError } = fetchAllAppointments();
+  const { logout, loading: logoutLoading } = useLogoutStaff();
+
+  const navigate = useNavigate()
+
+  
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showApptModal, setShowApptModal] = useState(false);
   const [apptPatient, setApptPatient] = useState(null);
+
+  console.log(fetchedAppointments);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      alert(`Logout successful! We hope to see you again!`)
+      navigate("/login")
+    } catch (err) {
+      console.error(err);
+      alert(`Oops! Something went wrong!`)
+    }
+  };
 
   const [appointments, setAppointments] = useState([
     { 
@@ -69,21 +91,38 @@ const Dashboard = ({ user, onLogout, onNavigateToSearch, onViewPatient }) => {
     setAppointments([newAppt, ...appointments]);
   };
 
+  if (staffError) return <p>Please log in</p>;
+  if (appointmentsError) return <p>{appointmentsError}</p>;
+
+  if (staffLoading || appointmentsLoading) {
+      return (
+        <div h="50vh" flexdirection="column" gap={4}>
+          <h3>Loading dashboard...</h3>
+        </div>
+      );
+  }
+
+  if (logoutLoading) {
+      return (
+        <div h="50vh" flexdirection="column" gap={4}>
+          <h3>Logout in progress...</h3>
+        </div>
+      );
+  }
+
   return (
     <div style={styles.dashboardContainer}>
       <header style={styles.header}>
-        <div>
-          <h2 style={{ margin: 0 }}>Patient Attendance Prediction System</h2>
-          <span style={{ fontSize: '12px', color: '#7f8c8d' }}>
-            User: {user.email} | Role: {user.role}
-          </span>
-        </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
+          <div>
+            <h2 style={{ margin: 0 }}>Hospital Staff Dashboard</h2>
+            <span style={{ fontSize: '12px', color: '#7f8c8d' }}>
+              Name: {staff.name} | Department: {staff.department} 
+            </span>
+          </div>
           <button onClick={() => handleOpenApptModal()} style={styles.scheduleBtn}>+ Schedule Appt</button>
-          <button onClick={onNavigateToSearch} style={styles.searchBtn}>Search Patients</button>
-          <button onClick={onLogout} style={styles.logoutBtn}>Logout</button>
-        </div>
-      </header>
+          <button style={styles.searchBtn}>Search Patients</button>
+          <button style={styles.logoutBtn} onClick={handleLogout}>Logout</button>
+        </header>
 
       <div style={styles.statsRow}>
         <div style={{ ...styles.card, borderTop: '4px solid #27ae60' }}>
@@ -121,16 +160,16 @@ const Dashboard = ({ user, onLogout, onNavigateToSearch, onViewPatient }) => {
                 <td style={styles.td}>
                   <button 
                     style={{ ...styles.linkBtn, fontWeight: '600' }}
-                    onClick={() => onViewPatient({ 
-                      id: apt.patientId,
-                      name: apt.patient, 
-                      risk: apt.risk, 
-                      score: apt.score,
-                      age: apt.age,
-                      gender: apt.gender,
-                      phone: apt.phone,
-                      email: apt.email
-                    })}
+                    // onClick={() => onViewPatient({ 
+                    //   id: apt.patientId,
+                    //   name: apt.patient, 
+                    //   risk: apt.risk, 
+                    //   score: apt.score,
+                    //   age: apt.age,
+                    //   gender: apt.gender,
+                    //   phone: apt.phone,
+                    //   email: apt.email
+                    // })}
                   >
                     {apt.patient}
                   </button>
@@ -226,5 +265,3 @@ const styles = {
   actionBtn: { padding: '8px 18px', backgroundColor: '#2c6eb5', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' },
   linkBtn: { background: 'none', border: 'none', color: '#2c6eb5', cursor: 'pointer', padding: 0, fontSize: '15px', textAlign: 'left', textDecoration: 'none', borderBottom: '1px solid transparent' }
 };
-
-export default Dashboard;

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './components/Login';
-import Dashboard from './Dashboard';
+import StaffDashboard from './components/StaffDashboard';
 import SearchPatients from './SearchPatients';
 import AddPatient from './AddPatient';
 import AdminDashboard from './components/AdminDashboard';
@@ -80,6 +80,8 @@ function App() {
       <Route path="/login" element={<Login />}/>
       <Route path="/admin_dashboard" element={<AdminDashboard />}/>
       <Route path="/create_staff" element={<CreateStaff />}/>
+      <Route path="/staff_dashboard" element={<StaffDashboard />}/>
+
     </Routes>
   );
 }

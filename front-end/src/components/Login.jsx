@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useLoginAdmin } from '../hooks/useAdmin';
+import { useLoginStaff } from '../hooks/useStaff';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -9,18 +10,22 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [admin, setAdmin] = useState(false)  
 
-  const { login, loading, error } = useLoginAdmin();
+  const { login: adminLogin, loading: adminLoading, error: adminError } = useLoginAdmin();
+  const { login: staffLogin, loading: staffLoading, error: staffError } = useLoginStaff();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (admin === true) {
-        const data = await login(email, password);
+        const data = await adminLogin(email, password);
         console.log("Logged in:", data.admin);
         alert(`Login successful! Welcome back!`);
         navigate("/admin_dashboard");
       } else {
-        console.log("Hi");
+        const data = await staffLogin(email, password);
+        console.log("Logged in:", data.staff);
+        alert(`Login successful! Welcome back!`);
+        navigate("/staff_dashboard");
       }
     } catch (err) {
       console.error(err);
@@ -28,10 +33,13 @@ export default function Login() {
     }
   };
 
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   onLogin(email);
-  // };
+  if (staffLoading || adminLoading) {
+      return (
+        <div h="50vh" flexdirection="column" gap={4}>
+          <h3>Logging you in...</h3>
+        </div>
+      );
+  }
 
   return (
     <div style={styles.container}>
@@ -67,7 +75,7 @@ export default function Login() {
             />
           </div>
           <button type="submit" style={styles.button}>Login</button>
-          {error && <p color="red.500">{error}</p>}
+          {adminError || staffError && <p color="red.500">{adminError || staffError}</p>}
         </form>
 
         <div style={styles.divider}>
