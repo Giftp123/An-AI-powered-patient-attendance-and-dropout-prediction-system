@@ -20,6 +20,16 @@ export const getAppointments = async () => {
   return response.data;
 };
 
+export const sendReminder = async (patientId) => {
+  const response = await apiClient.post(`/appointments/${patientId}/send_reminder`);
+  return response.data;
+};
+
+export const updateAppointment = async (appointmentId, data) => {
+  const response = await apiClient.put(`/appointments/${appointmentId}`, data);
+  return response.data;
+};
+
 // export const signupStaffs = async (staffData) => {
 //   const response = await apiClient.post("/staffs", staffData);
 //   return response.data;

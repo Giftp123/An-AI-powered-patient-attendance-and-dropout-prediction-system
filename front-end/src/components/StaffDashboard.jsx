@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import InterventionModal from './InterventionModal';
-import Analytics from '../Analytics';
+import apiClient from '../services/apiClient';
+import InterventionModal from './InterventionModal';
+import AppointmentsPieChart from './AppointmentsPieChart';
 import AppointmentModal from '../AppointmentModal';
-import { useCurrentStaff, useLogoutStaff, fetchAllAppointments } from '../hooks/useStaff';
+import { useCurrentStaff, useLogoutStaff, fetchAllAppointments, useUpdateAppointment } from '../hooks/useStaff';
 
 export default function StaffDashboard ({ user, onLogout, onNavigateToSearch, onViewPatient }) {
   const { staff, loading: staffLoading, error: staffError } = useCurrentStaff();
   const { appointments: fetchedAppointments, loading: appointmentsLoading, error: appointmentsError } = fetchAllAppointments();
   const { logout, loading: logoutLoading } = useLogoutStaff();
 
-  const navigate = useNavigate()
-
+  const navigate = useNavigate();
   
-  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [selectedAppt, setSelectedAppt] = useState(null);
   const [showApptModal, setShowApptModal] = useState(false);
   const [apptPatient, setApptPatient] = useState(null);
 
-  console.log(fetchedAppointments);
+  // console.log(fetchedAppointments);
 
   const handleLogout = async () => {
     try {
@@ -30,66 +30,44 @@ export default function StaffDashboard ({ user, onLogout, onNavigateToSearch, on
     }
   };
 
-  const [appointments, setAppointments] = useState([
-    { 
-      id: "APT001", 
-      patientId: "PAT001",
-      patient: "Alice Kamau", 
-      time: "10:00 AM", 
-      risk: "High", 
-      score: "82%", 
-      age: 34,
-      gender: "Female",
-      phone: "+254 712 345 678",
-      email: "alice.k@email.com",
-      history: "2 previous no-shows, last visit 45 days ago" 
-    },
-    { 
-      id: "APT002", 
-      patientId: "PAT002",
-      patient: "John Mutua", 
-      time: "11:30 AM", 
-      risk: "Low", 
-      score: "12%", 
-      age: 45,
-      gender: "Male",
-      phone: "+254 722 987 654",
-      email: "john.m@email.com",
-      history: "5 previous visits, 0 no-shows" 
-    },
-    { 
-      id: "APT003", 
-      patientId: "PAT003",
-      patient: "Sarah Chen", 
-      time: "01:00 PM", 
-      risk: "Medium", 
-      score: "45%", 
-      age: 29,
-      gender: "Female",
-      phone: "+254 733 111 222",
-      email: "sarah.c@email.com",
-      history: "1 missed appointment in 2025" 
-    },
-  ]);
+  const handleUpdate = async (id, data) => {
+    try {
+      const response = await apiClient.put(`/appointments/${id}`, data);
+      alert("Appointment update successful");      
+      console.log(response.data);
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+      alert("Oops! Something went wrong! Please try again.");
+    }
+  };
+
+  const handleClosing = (apptId) => {
+    handleUpdate(apptId, { status: "Completed" });
+  };
+
+  const handleCancelling = (apptId) => {
+    handleUpdate(apptId, { status: "Cancelled" });
+  };
 
   const handleOpenApptModal = (patient = null) => {
     setApptPatient(patient);
     setShowApptModal(true);
   };
 
-  const handleAddAppointment = (formData) => {
-    const newAppt = {
-      id: `APT${Math.floor(Math.random() * 1000)}`,
-      patientId: formData.patientId,
-      patient: formData.patientName,
-      time: formData.time || "TBD",
-      date: formData.date,
-      risk: "Pending",
-      score: "--",
-      history: formData.reason
-    };
-    setAppointments([newAppt, ...appointments]);
-  };
+  // const handleAddAppointment = (formData) => {
+  //   const newAppt = {
+  //     id: `APT${Math.floor(Math.random() * 1000)}`,
+  //     patientId: formData.patientId,
+  //     patient: formData.patientName,
+  //     time: formData.time || "TBD",
+  //     date: formData.date,
+  //     risk: "Pending",
+  //     score: "--",
+  //     history: formData.reason
+  //   };
+  //   setAppointments([newAppt, ...appointments]);
+  // };
 
   if (staffError) return <p>Please log in</p>;
   if (appointmentsError) return <p>{appointmentsError}</p>;
@@ -125,22 +103,16 @@ export default function StaffDashboard ({ user, onLogout, onNavigateToSearch, on
         </header>
 
       <div style={styles.statsRow}>
-        <div style={{ ...styles.card, borderTop: '4px solid #27ae60' }}>
-          <p style={styles.statLabel}>Low Risk</p>
-          <h3>24</h3>
-        </div>
-        <div style={{ ...styles.card, borderTop: '4px solid #f39c12' }}>
-          <p style={styles.statLabel}>Medium Risk</p>
-          <h3>12</h3>
-        </div>
         <div style={{ ...styles.card, borderTop: '4px solid #e74c3c' }}>
-          <p style={styles.statLabel}>High Risk</p>
-          <h3>5</h3>
+          <p style={styles.statLabel}>Total Appointments</p>
+          <h3>{fetchedAppointments.length}</h3>
+          <p style={styles.statLabel}>Appointment Distribution</p>
+          <AppointmentsPieChart appointments={fetchedAppointments}/>
         </div>
       </div>
 
       <section style={styles.tableSection}>
-        <h3 style={{ marginBottom: '15px' }}>Upcoming Schedule</h3>
+        <h3 style={{ marginBottom: '15px' }}>Appointment Schedule</h3>
         <table style={styles.table}>
           <thead>
             <tr style={styles.tableHeader}>
@@ -148,50 +120,71 @@ export default function StaffDashboard ({ user, onLogout, onNavigateToSearch, on
               <th style={styles.th}>Patient Name</th>
               <th style={styles.th}>Time</th>
               <th style={styles.th}>Risk Level</th>
-              <th style={styles.th}>Score</th>
-              <th style={styles.th}>Engagement History</th>
-              <th style={styles.th}>Action</th>
+              <th style={styles.th}>Status</th>
+              <th style={styles.th}>Appointment Descrpition</th>
+              <th style={styles.th}>Trigger Intervention</th>
+              <th style={styles.th}>Finalise Appointment</th>
+              <th style={styles.th}>Cancel Appointment</th>
             </tr>
           </thead>
           <tbody>
-            {appointments.map((apt) => (
-              <tr key={apt.id} style={styles.tableRow}>
-                <td style={styles.td}><strong>{apt.patientId || 'N/A'}</strong></td>
+            {fetchedAppointments.map((apt) => (
+              <tr key={apt._id} style={styles.tableRow}>
+                <td style={styles.td}><strong>{apt.patient_id || 'N/A'}</strong></td>
                 <td style={styles.td}>
                   <button 
                     style={{ ...styles.linkBtn, fontWeight: '600' }}
                     // onClick={() => onViewPatient({ 
-                    //   id: apt.patientId,
-                    //   name: apt.patient, 
-                    //   risk: apt.risk, 
-                    //   score: apt.score,
-                    //   age: apt.age,
-                    //   gender: apt.gender,
-                    //   phone: apt.phone,
-                    //   email: apt.email
+                    //   id: apt.patient_id,
+                    //   name: apt.patient.name, 
+                    //   email: apt.patient.email
                     // })}
                   >
-                    {apt.patient}
+                    {apt.patient.name}
                   </button>
                 </td>
-                <td style={styles.td}>{apt.time}</td>
+                <td style={styles.td}>{apt.appointment_date}</td>
                 <td style={styles.td}>
                   <span style={{
                     ...styles.badge,
                     backgroundColor: apt.risk === 'High' ? '#e74c3c' : apt.risk === 'Medium' ? '#f39c12' : '#27ae60'
                   }}>
-                    {apt.risk}
+                    {apt.patient.risk_level}
                   </span>
                 </td>
-                <td style={styles.td}><strong>{apt.score}</strong></td>
-                <td style={{ ...styles.td, fontSize: '12px', color: '#7f8c8d' }}>{apt.history}</td>
+                <td style={styles.td}><strong>{apt.status}</strong></td>
+                <td style={{ ...styles.td, fontSize: '12px', color: '#7f8c8d' }}>{apt.appointment_details}</td>
                 <td style={styles.td}>
-                  <button 
-                    style={styles.actionBtn} 
-                    onClick={() => setSelectedPatient(apt)}
-                  >
-                    Remind
-                  </button>
+                  {apt.status === "Scheduled" && (
+                    <button 
+                      style={styles.actionBtn} 
+                      onClick={() => setSelectedAppt(apt)}
+                    >
+                      Remind
+                    </button>
+                  )}
+                </td>
+
+                <td style={styles.td}>
+                  {apt.status === "Scheduled" && (
+                    <button 
+                      style={styles.actionBtn} 
+                      onClick={() => handleClosing(apt._id)}                  
+                    >
+                      Close
+                    </button>
+                  )}
+                </td>
+
+                <td style={styles.td}>
+                  {apt.status === "Scheduled" && (
+                    <button 
+                      style={styles.actionBtn} 
+                      onClick={() => handleCancelling(apt._id)}               
+                    >
+                      Cancel
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
@@ -199,12 +192,10 @@ export default function StaffDashboard ({ user, onLogout, onNavigateToSearch, on
         </table>
       </section>
 
-      <Analytics />
-
-      {selectedPatient && (
+      {selectedAppt && (
         <InterventionModal 
-          patient={selectedPatient} 
-          onClose={() => setSelectedPatient(null)} 
+          appt={selectedAppt} 
+          onClose={() => setSelectedAppt(null)} 
         />
       )}
 

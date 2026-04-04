@@ -3,12 +3,12 @@ class AppointmentsController < ApplicationController
 #   before_action :set_patient, only: [:create]
     def index
         appointments = Appointment.all
-        render json: appointments.as_json(include: { patient: { only: [:id, :name, :risk_level] }})
+        render json: appointments.as_json(include: { patient: { only: [:_id, :name, :risk_level, :email] }})
     end
 
     def show
         appointment = Appointment.find(params[:id])
-        render json: appointment.as_json(include: { patient: { only: [:id, :name, :risk_level] }})
+        render json: appointment.as_json(include: { patient: { only: [:_id, :name, :risk_level, :email] }})
     end
 
     def create

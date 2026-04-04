@@ -1,12 +1,20 @@
 import React from 'react';
+import apiClient from '../services/apiClient';
 
-const InterventionModal = ({ patient, onClose }) => {
-  if (!patient) return null;
+const InterventionModal = ({ appt, onClose }) => {
+  const apptId = appt._id
+  console.log(apptId);
 
-  const handleSend = (channel) => {
-    alert(`Intervention triggered for ${patient.name} via ${channel}. Reminder sent!`);
-    onClose();
-  };
+  const handleSend = async (id, channel) => {
+    try {
+      await apiClient.post(`/appointments/${id}/send_reminder`);
+      alert(`Intervention triggered for ${appt.patient.name} via ${channel}. Reminder sent!`);
+      onClose();
+    } catch (err) {
+        console.error(err);
+  }};
+
+  if (!appt) return null;
 
   return (
     <div style={styles.overlay}>
@@ -17,25 +25,25 @@ const InterventionModal = ({ patient, onClose }) => {
         </div>
         
         <div style={styles.modalBody}>
-          <p><strong>Patient:</strong> {patient.name}</p>
-          <p><strong>Risk Level:</strong> <span style={{color: '#e74c3c'}}>{patient.risk} ({patient.score})</span></p>
+          <p><strong>Patient:</strong> {appt.patient.name}</p>
+          <p><strong>Risk Level:</strong> <span style={{color: '#e74c3c'}}>{appt.patient.risk_level}</span></p>
           
           <div style={styles.messageBox}>
             <p style={styles.label}>Reminder Message Preview:</p>
             <div style={styles.preview}>
-              "Reminder: You have an appointment on {patient.time}. Please contact us if you need to reschedule."
+              "This is a reminder that you have an appointment scheduled on the following day. Kindly make sure you attend on
+              time and kindly contact us if you need to reschedule. Thank you!"
             </div>
           </div>
 
           <div style={styles.buttonGroup}>
-            <button onClick={() => handleSend('SMS')} style={styles.smsBtn}>Send via SMS</button>
-            <button onClick={() => handleSend('WhatsApp')} style={styles.waBtn}>Send via WhatsApp</button>
-            <button onClick={() => handleSend('Email')} style={styles.emailBtn}>Send via Email</button>
+            <button onClick={() => handleSend(apptId, 'Email')} style={styles.emailBtn}>Send via Email</button>
           </div>
         </div>
       </div>
     </div>
   );
+
 };
 
 const styles = {

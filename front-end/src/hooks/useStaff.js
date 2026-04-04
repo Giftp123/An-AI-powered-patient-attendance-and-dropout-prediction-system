@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { loginStaff, logoutStaff, currentStaff, getAppointments } from "../services/staffService";
+import { loginStaff, logoutStaff, currentStaff, getAppointments, updateAppointment } from "../services/staffService";
 
 export function useLoginStaff() {
     const [loading, setLoading] = useState(false);
@@ -96,26 +96,25 @@ export const fetchAllAppointments = () => {
   return { appointments, loading, error, refetch: fetchAppointments };
 };
 
-// export const useSignupStaffs = () => {
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState(null);
+export const useUpdateAppointment = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-//   const signup = async (staffData) => {
-//     try {
-//       setLoading(true);
-//       setError(null);
-//       const data = await signupStaffs(staffData);
-//       return data;
-//     } catch (err) {
-//       setError(err.response?.data?.error || "Signup failed");
-//       throw err;
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+  const update = async (id, data) => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await updateAppointment(id, data);
+    } catch (err) {
+      setError(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
 
-//   return { signup, loading, error };
-// };
+  return { updateAppt: update, loading, error };
+}
 
 // export function useDeleteStaff() {
 //   const [loading, setLoading] = useState(false);
