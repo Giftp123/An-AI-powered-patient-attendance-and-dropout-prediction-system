@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import apiClient from '../services/apiClient';
 
 const AppointmentModal = ({ patientId, patientName, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -9,15 +10,55 @@ const AppointmentModal = ({ patientId, patientName, onClose, onSubmit }) => {
     time: ''
   });
 
-  const handleSubmit = (e) => {
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   if (!formData.date || !formData.reason || !formData.patientName) {
+  //     alert("Please fill in all required fields.");
+  //     return;
+  //   }
+  //   onSubmit(formData);
+    
+  // };
+
+  // const handleAddAppointment = async (formData) => {
+  //   try {
+  //     const payload = {
+  //       appointment: {
+  //         appointment_date: formData.date,
+  //         appointment_time: formData.time,
+  //         appointment_details: formData.reason
+  //       }
+  //     };
+  //     const res = await apiClient.post(`/patients/${formData.patientId}/appointments`, payload);
+  //     alert(`Appointment scheduled for ${formData.patientName} on ${formData.date}`);
+  //     window.location.reload();
+  //     console.log(res.data);
+  //     // Optional: refresh appointments here if needed
+  //   } catch (error) {
+  //     console.error(error);
+  //     alert("Oops! Failed to schedule appointment.");
+  //   }
+  // };
+
+  console.log(formData);
+  
+
+  const handleAddAppointment = async (e) => {
     e.preventDefault();
-    if (!formData.date || !formData.reason || !formData.patientName) {
-      alert("Please fill in all required fields.");
-      return;
+    try {
+      const payload = {
+          appointment_date: formData.date,
+          appointment_time: formData.time,
+          appointment_details: formData.reason
+        };
+      const res = await apiClient.post(`/patients/${formData.patientId}/appointments`, payload);
+      alert(`Appointment scheduled for ${formData.patientName} on ${formData.date}`);
+      window.location.reload();
+      console.log(res.data);
+    } catch (error) {
+      console.error(error);
+      alert("Oops! Something went wrong! Please try again.");
     }
-    onSubmit(formData);
-    alert(`Appointment scheduled for ${formData.patientName} on ${formData.date}`);
-    onClose();
   };
 
   return (
@@ -28,7 +69,7 @@ const AppointmentModal = ({ patientId, patientName, onClose, onSubmit }) => {
           <button onClick={onClose} style={styles.closeBtn}>×</button>
         </div>
         
-        <form onSubmit={handleSubmit} style={styles.form}>
+        <form onSubmit={handleAddAppointment} style={styles.form}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>Patient ID</label>
             <input 

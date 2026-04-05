@@ -3,13 +3,17 @@ class Appointment
   include Mongoid::Timestamps
 
   field :appointment_date, type: Date
+  field :appointment_time, type: String
   field :appointment_details, type: String
-  field :status, type: String
+  field :status, type: String, default: "Scheduled"
 
   belongs_to :staff
   belongs_to :patient
 
   validates :appointment_date, presence: true
+  validates :appointment_time,
+  format: { with: /\A([01]\d|2[0-3]):([0-5]\d)\z/, message: "must be in HH:MM (24-hour) format" },
+  allow_blank: true
   validates :status, inclusion: { in: %w[Scheduled Completed Cancelled] }
 
   after_create :update_patient_data

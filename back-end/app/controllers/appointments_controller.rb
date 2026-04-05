@@ -2,13 +2,29 @@ class AppointmentsController < ApplicationController
   before_action :authenticate_staff!
 #   before_action :set_patient, only: [:create]
     def index
-        appointments = Appointment.all
-        render json: appointments
+        if params[:patient_id]
+            patient = Patient.find(params[:patient_id])
+            appointments = patient.appointments
+        else
+            appointments = Appointment.all
+        end
+
+        render json: appointments.as_json(
+            include: {
+            patient: { only: [:_id, :name, :risk_level, :email] },
+            staff: { only: [:_id, :name, :email] }
+            }
+        )
     end
 
     def show
         appointment = Appointment.find(params[:id])
-        render json: appointment
+        render json: appointment.as_json(
+            include: {
+            patient: { only: [:_id, :name, :risk_level, :email] },
+            staff: { only: [:_id, :name, :email] }
+            }
+        )
     end
 
     def create
@@ -62,6 +78,7 @@ class AppointmentsController < ApplicationController
     def appointment_params
         params.permit(
             :appointment_date,
+            :appointment_time,
             :appointment_details,
             :status
         )

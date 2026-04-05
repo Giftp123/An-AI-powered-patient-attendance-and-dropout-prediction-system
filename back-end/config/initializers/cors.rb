@@ -1,8 +1,10 @@
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins '*' # Allows requests from any origin during development
-    resource '*',
+    origins "http://localhost:5173"
+
+    resource "*",
       headers: :any,
-      methods: [:get, :post, :put, :patch, :delete, :options, :head]
+      methods: :any,
+      credentials: true
   end
 end

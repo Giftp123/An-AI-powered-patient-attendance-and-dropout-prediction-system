@@ -1,79 +1,91 @@
 import { useState } from 'react';
-import Login from './Login';
-import Dashboard from './Dashboard';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Login from './components/Login';
+import StaffDashboard from './components/StaffDashboard';
 import SearchPatients from './SearchPatients';
-import AddPatient from './AddPatient';
-import AdminDashboard from './AdminDashboard';
-import CreateStaff from './CreateStaff';
+import AdminDashboard from './components/AdminDashboard';
+import CreateStaff from './components/CreateStaff';
+import ViewPatient from './components/ViewPatient';
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [currentView, setCurrentView] = useState('dashboard');
-  const [selectedPatient, setSelectedPatient] = useState(null);
+  // const [user, setUser] = useState(null);
+  // const [currentView, setCurrentView] = useState('dashboard');
+  // const [selectedPatient, setSelectedPatient] = useState(null);
 
-  const handleLogin = (email) => {
-    const role = email.includes('admin') ? 'System Administrator' : 'Clinic Staff';
-    setUser({ email, role });
-  };
+  // const handleLogin = (email) => {
+  //   const role = email.includes('admin') ? 'System Administrator' : 'Clinic Staff';
+  //   setUser({ email, role });
+  // };
 
-  const handleLogout = () => {
-    setUser(null);
-    setCurrentView('dashboard');
-    setSelectedPatient(null);
-  };
+  // const handleLogout = () => {
+  //   setUser(null);
+  //   setCurrentView('dashboard');
+  //   setSelectedPatient(null);
+  // };
 
-  const navigateToPatient = (patient) => {
-    setSelectedPatient(patient);
-    setCurrentView('patientDetails');
-  };
+  // const navigateToPatient = (patient) => {
+  //   setSelectedPatient(patient);
+  //   setCurrentView('patientDetails');
+  // };
 
-  const renderView = () => {
-    if (user.role === 'System Administrator') {
-      if (currentView === 'dashboard') {
-        return <AdminDashboard user={user} onLogout={handleLogout} onCreateStaff={() => setCurrentView('createStaff')} />;
-      }
-      if (currentView === 'createStaff') {
-        return <CreateStaff onBack={() => setCurrentView('dashboard')} />;
-      }
-    }
+  // const renderView = () => {
+  //   if (user.role === 'System Administrator') {
+  //     if (currentView === 'dashboard') {
+  //       return <AdminDashboard user={user} onLogout={handleLogout} onCreateStaff={() => setCurrentView('createStaff')} />;
+  //     }
+  //     if (currentView === 'createStaff') {
+  //       return <CreateStaff onBack={() => setCurrentView('dashboard')} />;
+  //     }
+  //   }
 
-    switch (currentView) {
-      case 'dashboard':
-        return (
-          <Dashboard 
-            user={user} 
-            onLogout={handleLogout} 
-            onNavigateToSearch={() => setCurrentView('search')}
-            onViewPatient={navigateToPatient}
-          />
-        );
-      case 'search':
-        return (
-          <SearchPatients 
-            onBack={() => setCurrentView('dashboard')} 
-            onViewPatient={navigateToPatient}
-          />
-        );
-      case 'patientDetails':
-        return (
-          <AddPatient 
-            patient={selectedPatient} 
-            onBack={() => setCurrentView('search')} 
-          />
-        );
-      default:
-        return <Dashboard user={user} onLogout={handleLogout} />;
-    }
-  };
+  //   switch (currentView) {
+  //     case 'dashboard':
+  //       return (
+  //         <Dashboard 
+  //           user={user} 
+  //           onLogout={handleLogout} 
+  //           onNavigateToSearch={() => setCurrentView('search')}
+  //           onViewPatient={navigateToPatient}
+  //         />
+  //       );
+  //     case 'search':
+  //       return (
+  //         <SearchPatients 
+  //           onBack={() => setCurrentView('dashboard')} 
+  //           onViewPatient={navigateToPatient}
+  //         />
+  //       );
+  //     case 'patientDetails':
+  //       return (
+  //         <AddPatient 
+  //           patient={selectedPatient} 
+  //           onBack={() => setCurrentView('search')} 
+  //         />
+  //       );
+  //     default:
+  //       return <Dashboard user={user} onLogout={handleLogout} />;
+  //   }
+  // };
 
   return (
-    <div>
-      {!user ? (
-        <Login onLogin={handleLogin} />
-      ) : (
-        renderView()
-      )}
-    </div>
+    // <div>
+    //   {!user ? (
+    //     <Login onLogin={handleLogin} />
+    //   ) : (
+    //     renderView()
+    //   )}
+    // </div>
+
+    <Routes>
+      <Route path="/login" element={<Login />}/>
+      <Route path="/admin_dashboard" element={<AdminDashboard />}/>
+      <Route path="/create_staff" element={<CreateStaff />}/>
+      <Route path="/staff_dashboard" element={<StaffDashboard />}/>
+      <Route path="/view_patients" element={<SearchPatients />}/>
+      {/* <Route path="/view_patient" element={<AddPatient />}/> */}
+      <Route path="/view_patients/:id" element={<ViewPatient />}/>
+
+    </Routes>
   );
 }
 
