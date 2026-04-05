@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import apiClient from '../services/apiClient';
 import { useNavigate } from 'react-router-dom';
-import AppointmentModal from '../AppointmentModal';
+import AppointmentModal from './AppointmentModal';
+import InterventionModal from './InterventionModal';
 import { useParams } from 'react-router-dom';
 import { useGetPatientById, useGetPatientAppointments } from '../hooks/usePatient';
 import PatientAnalytics from './PatientAnalytics';
@@ -9,6 +11,8 @@ const ViewPatient = ({ onBack }) => {
   const { id } = useParams();
   const { patient, loading: patientLoading, error: patientError } = useGetPatientById(id);
   const { patientAppts, loading: appointmentsLoading, error: appointmentsError } = useGetPatientAppointments(id);  
+
+  const [selectedAppt, setSelectedAppt] = useState(null);
   const [showApptModal, setShowApptModal] = useState(false);
   const [showCharts, setShowCharts] = useState(true);
 
@@ -22,6 +26,26 @@ const ViewPatient = ({ onBack }) => {
     const suffix = h >= 12 ? "PM" : "AM";
     const adjusted = h % 12 || 12;
     return `${adjusted}:${minute} ${suffix}`;
+  };
+
+  const handleUpdate = async (id, data) => {
+    try {
+      const response = await apiClient.put(`/appointments/${id}`, data);
+      alert("Appointment update successful!");      
+      console.log(response.data);
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+      alert("Oops! Something went wrong! Please try again.");
+    }
+  };
+
+  const handleClosing = (apptId) => {
+    handleUpdate(apptId, { status: "Completed" });
+  };
+
+  const handleCancelling = (apptId) => {
+    handleUpdate(apptId, { status: "Cancelled" });
   };
   
 
@@ -62,12 +86,17 @@ const ViewPatient = ({ onBack }) => {
     <div style={styles.container}>
       <header style={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <button onClick={()=>navigate("/view_patients")} style={styles.backBtn}>← Back</button>
+          <button onClick={()=>navigate("/view_patients")} style={styles.backBtn}>← Search Patients</button>
           <h2 style={{ margin: 0 }}>Patient Profile: {patient.name}</h2>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button style={styles.scheduleBtn} onClick={() => setShowApptModal(true)}>
             Schedule Appointment
+          </button>
+        </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button style={styles.scheduleBtn} onClick={() => navigate("/staff_dashboard")}>
+            Appointments Dashboard
           </button>
         </div>
       </header>
@@ -97,9 +126,10 @@ const ViewPatient = ({ onBack }) => {
             {upcomingAppointment ? (
               <>
                 <p>
-                  <strong>When:</strong>{" "}
+                  <strong>Scheduled Date:</strong>{" "}
                   {upcomingAppointment.appointment_date} at {formatTime(upcomingAppointment.appointment_time)}
                 </p>
+                <p><strong>Doctor / Nurse:</strong> {upcomingAppointment.staff.name}</p>
                 <p><strong>Purpose:</strong> {upcomingAppointment.appointment_details}</p>
                 <div style={styles.btnGroup}>
                   <button 
@@ -110,9 +140,15 @@ const ViewPatient = ({ onBack }) => {
                   </button>
                   <button 
                     style={styles.notifyBtn} 
-                    onClick={() => alert('Notification sent to patient!')}
+                    onClick={() => setSelectedAppt(upcomingAppointment)}
                   >
                     Notify Patient
+                  </button>
+                  <button 
+                    style={styles.completeBtn} 
+                    onClick={() => handleCancelling(upcomingAppointment._id)}
+                  >
+                    Cancel Appointment
                   </button>
                 </div>
               </>
@@ -157,12 +193,12 @@ const ViewPatient = ({ onBack }) => {
               {patientAppts.map((apt, i) => (
                 <tr key={i} style={styles.tableRow}>
                   <td style={styles.td}>{apt.appointment_date}</td>
-                  <td style={styles.td}>{apt.appointment_time}</td>
+                  <td style={styles.td}>{formatTime(apt.appointment_time)}</td>
                   <td style={styles.td}>{apt.appointment_details}</td>
                   <td style={styles.td}>{apt.staff.name}</td>
                   <td style={styles.td}>
                     <span style={{ 
-                      color: apt.status === 'Completed' ? '#27ae60' : '#e74c3c',
+                      color: apt.status === 'Completed' ? '#27ae60' : 'Scheduled' ? '#2756ae' : '#e74c3c',
                       fontWeight: '600',
                       fontSize: '13px'
                     }}>
@@ -174,6 +210,13 @@ const ViewPatient = ({ onBack }) => {
             </tbody>
           </table>
         </section>
+
+        {selectedAppt && (
+          <InterventionModal 
+            appt={selectedAppt} 
+            onClose={() => setSelectedAppt(null)} 
+          />
+        )}
       </div>
 
       {showApptModal && (

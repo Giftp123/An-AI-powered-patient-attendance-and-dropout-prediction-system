@@ -35,8 +35,15 @@ export default function Login() {
 
   if (staffLoading || adminLoading) {
       return (
-        <div h="50vh" flexdirection="column" gap={4}>
-          <h3>Logging you in...</h3>
+        <div style={{
+          height: "50vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          color: "#7f8c8d"
+        }}>
+          <h3>Loading dashboard...</h3>
         </div>
       );
   }
@@ -47,7 +54,7 @@ export default function Login() {
         <div style={styles.header}>
           <div style={styles.logoCircle}>PA</div>
           <h2 style={styles.title}>Welcome Back</h2>
-          <p style={styles.subtitle}>Patient Attendance Prediction System</p>
+          <p style={styles.subtitle}>Patient Attendance Prediction and Management System</p>
         </div>
         
         <form style={styles.form} onSubmit={handleSubmit}>
@@ -102,8 +109,10 @@ export default function Login() {
         </div>
 
         <div style={styles.footer}>
-          <p>Don't have an account? Kindly contact an admin.</p>
-        </div>
+        <p>
+          Admin Login Engaged: {admin ? "ON" : "OFF"}
+        </p>
+      </div>
       </div>
     </div>
   );

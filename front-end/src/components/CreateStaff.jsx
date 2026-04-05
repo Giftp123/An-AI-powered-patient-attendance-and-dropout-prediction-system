@@ -92,7 +92,7 @@ export default function CreateStaff() {
                 type="tel" 
                 required 
                 style={styles.input} 
-                placeholder="+254 7XX XXX XXX"
+                placeholder="07XX XXX XXX"
                 value={formData.phone}
                 onChange={(e) => setFormData({...formData, phone_number: e.target.value})}
               />

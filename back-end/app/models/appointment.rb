@@ -5,7 +5,7 @@ class Appointment
   field :appointment_date, type: Date
   field :appointment_time, type: String
   field :appointment_details, type: String
-  field :status, type: String, default: "Schedules"
+  field :status, type: String, default: "Scheduled"
 
   belongs_to :staff
   belongs_to :patient

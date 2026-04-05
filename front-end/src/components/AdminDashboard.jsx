@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCurrentAdmin, useLogoutAdmin, useAllStaffs, useDeleteStaff } from '../hooks/useAdmin';
 import { formatDateTime } from '../utils/formatDate';
+import StaffPieChart from './StaffPieChart';
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
@@ -9,6 +10,8 @@ export default function AdminDashboard() {
   const { logout, loading: logoutLoading } = useLogoutAdmin();
   const { staffs, loading: staffsLoading, error: staffsError } = useAllStaffs();
   const { deleteStaff, loading: deleteLoading, error: deleteError} = useDeleteStaff();
+
+  const [showCharts, setShowCharts] = useState(true);
 
   const handleLogout = async () => {
     try {
@@ -62,7 +65,14 @@ export default function AdminDashboard() {
 
   if (adminLoading || staffsLoading) {
       return (
-        <div h="50vh" flexdirection="column" gap={4}>
+        <div style={{
+          height: "50vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          color: "#7f8c8d"
+        }}>
           <h3>Loading dashboard...</h3>
         </div>
       );
@@ -70,10 +80,17 @@ export default function AdminDashboard() {
 
   if (logoutLoading) {
       return (
-        <div h="50vh" flexdirection="column" gap={4}>
-          <h3>Logout in progress...</h3>
-        </div>
-      );
+      <div style={{
+        height: "50vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        color: "#7f8c8d"
+      }}>
+        <h3>Logout in progress...</h3>
+      </div>
+    );
   }
 
   return (
@@ -89,7 +106,7 @@ export default function AdminDashboard() {
       </header>
 
       {/* Admin Overview & Capacity */}
-      <div style={styles.statsRow}>
+      {/* <div style={styles.statsRow}>
         <div style={styles.card}>
           <p style={styles.statLabel}>Total Clinical Staff</p>
           <h3 style={styles.statValue}>{staffs.length}</h3>
@@ -107,7 +124,25 @@ export default function AdminDashboard() {
           <p style={styles.statLabel}>System Health</p>
           <h3 style={{ ...styles.statValue, color: '#27ae60' }}>{stats.systemUptime}</h3>
         </div>
-      </div>
+      </div> */}
+
+      <button 
+          onClick={() => setShowCharts(prev => !prev)}
+          style={styles.toggleBtn}
+        >
+          {showCharts ? "Hide Analytics ▲" : "Show Analytics ▼"}
+        </button>
+
+      {showCharts && (
+        <div style={styles.chartsRow}>
+          <div style={{ ...styles.card, flex: 1, borderTop: '4px solid #e74c3c' }}>
+            <p style={styles.statLabel}>Staff Distribution Analysis</p>
+            <StaffPieChart staffs={staffs}/>
+          </div>
+        </div>
+      )}  
+
+      <br />
 
       {/* Staff Management Section */}
       <section style={styles.tableSection}>
@@ -183,5 +218,22 @@ const styles = {
   th: { padding: '15px 10px', textAlign: 'left', color: '#7f8c8d', fontSize: '13px', fontWeight: 'bold' },
   td: { padding: '15px 10px', borderBottom: '1px solid #f0f2f5', color: '#2c3e50' },
   statusBadge: { padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' },
-  editBtn: { padding: '6px 12px', backgroundColor: '#f8f9fa', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }
+  editBtn: { padding: '6px 12px', backgroundColor: '#f8f9fa', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' },
+  chartsRow: {
+    display: 'flex',
+    gap: '20px',
+    marginTop: '20px',
+    alignItems: 'stretch'
+  },
+  toggleBtn: {
+    marginTop: '10px',
+    marginBottom: '20px',
+    padding: '10px 14px',
+    border: 'none',
+    borderRadius: '8px',
+    backgroundColor: '#2c6eb5',
+    color: 'white',
+    cursor: 'pointer',
+    fontWeight: '600'
+  } 
 };
